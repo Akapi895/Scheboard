@@ -1,5 +1,5 @@
-from ..models.user import User
-from ..models.task import Task
+from ..models.users import User
+from ..models.tasks import Task
 
 async def get_user_profile(user_id: str) -> dict:
     # Fetch user information from the database
