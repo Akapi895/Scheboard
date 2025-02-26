@@ -2,7 +2,7 @@ import requests
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(dotenv_path="../../.env")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     print("API key chưa được cài đặt. Vui lòng cấu hình file .env.")
@@ -39,7 +39,8 @@ def chat_with_gemini(question: str, instruction: str) -> str:
 def main():
     print("Nhập câu hỏi của bạn (gõ 'exit' để thoát):")
     
-    instruction = "Bạn là một trợ lý cho một ứng dụng quản lý thời gian và hỗ trợ học tập. Hãy đưa ra cho người dùng những câu trả lời chính xác và mang tính xây dựng nhất."
+    instruction = """Bạn là một trợ lý cho một ứng dụng quản lý thời gian và hỗ trợ học tập có tên là Scheboard. Khi người dùng chào bạn, hãy chào lại thân thiện và cho họ biết rằng bạn là ai.
+                     Còn khi họ hỏi, hãy đưa ra cho người dùng những câu trả lời chính xác và mang tính xây dựng nhất."""
 
     while True:
         question = input("You: ")
