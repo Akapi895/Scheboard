@@ -1,8 +1,10 @@
 import sys
 import os
+from fastapi import FastAPI
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+from calendar.controllers import router as calendar_router
 from credentials.controllers import router as credentials_router
 from backend.profile.controllers import router as profile_router
 from backend.chatbot.controllers import router as chatbot_router
@@ -15,3 +17,5 @@ app.include_router(credentials_router)
 app.include_router(profile_router)
 app.include_router(chatbot_router)
 app.include_router(dashboard_router)
+app.include_router(calendar_router, prefix="/api/calendar")
+
