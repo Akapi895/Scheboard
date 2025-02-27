@@ -79,6 +79,7 @@ class TaskUpdateResponse(BaseModel):
     status: str
     data: Dict
 
+# tested
 @router.put("/tasks/update", response_model=TaskUpdateResponse)
 async def update_task_endpoint(task: TaskUpdateRequest):
     await update_task(task.task_id, task.model_dump())
@@ -94,9 +95,10 @@ async def update_task_endpoint(task: TaskUpdateRequest):
 class TaskDeleteRequest(BaseModel):
     task_id: int
 
+# tested
 @router.delete("/tasks/delete")
-async def delete_task_endpoint(task_id: int = Query(...)):
-    await delete_task(task_id)
+async def delete_task_endpoint(task: TaskDeleteRequest):
+    await delete_task(task.task_id)
     return {"status": "success", "data": {}}
 
 
@@ -104,6 +106,7 @@ class TaskStatusUpdateRequest(BaseModel):
     task_id: int
     status: str
 
+# tested
 @router.patch("/tasks/status")
 async def update_task_status_endpoint(task: TaskStatusUpdateRequest):
     await update_task_status(task.task_id, task.status)

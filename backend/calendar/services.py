@@ -63,7 +63,7 @@ async def create_task(task: dict) -> int:
         await cursor.close()
         return new_task[0]
     
-
+# tested
 async def update_task(task_id: int, task: dict) -> None:
     async with aiosqlite.connect(DATABASE) as db:
         await db.execute(
@@ -88,13 +88,13 @@ async def update_task(task_id: int, task: dict) -> None:
         )
         await db.commit()
 
-
+# tested
 async def delete_task(task_id: int) -> None:
     async with aiosqlite.connect(DATABASE) as db:
         await db.execute("DELETE FROM tasks WHERE task_id = ?", (task_id,))
         await db.commit()
 
-
+# tested
 async def update_task_status(task_id: int, status: str) -> None:
     async with aiosqlite.connect(DATABASE) as db:
         await db.execute("UPDATE tasks SET status = ? WHERE task_id = ?", (status, task_id))
