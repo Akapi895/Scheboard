@@ -1,9 +1,11 @@
 from fastapi import APIRouter, HTTPException, Query
 from .services import update_user_mood, get_dashboard_data
 from .services import get_barchart_data, get_piechart_data, get_donutchart_data
+from .services import delete_task, complete_task, detail_task
 from .schemas import MoodChangeRequest, MoodChangeResponse
 from .schemas import DashboardRequest, DashboardResponse
 from .schemas import ChartRequest, ChartResponse
+from .schemas import DelComTaskRequest, DelComTaskResponse
 
 router = APIRouter()
 
@@ -22,7 +24,8 @@ async def get_dashboard(dashboard_request: DashboardRequest):
         return {"status": "success", "data": dashboard_data}
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
-    
+
+# Chart 
 @router.get("/api/dashboard/barchart", response_model=ChartResponse)
 async def get_barchart(barchart_request: ChartRequest):
     try:
@@ -46,3 +49,27 @@ async def get_donutchart(donutchart: ChartRequest):
         return {"status": "success", "data": donutchart_data} 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+        
+@router.delete("/api/dashboard/upcoming/delete", response_model=DelComTaskResponse)
+async def delete_task_endpoint(delete_task_request: DelComTaskRequest):
+    try:
+        await delete_task(delete_task_request.user_id, delete_task_request.task_id)
+        return {"status": "success"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.put("/api/dashboard/upcoming/complete", response_model=DelComTaskResponse)
+async def complete_task_endpoint(delete_task_request: DelComTaskRequest):
+    try:
+        await complete_task(delete_task_request.user_id, delete_task_request.task_id)
+        return {"status": "success"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.put("/api/dashboard/upcoming/detail", response_model=DashboardResponse)
+async def detail_task_endpoint(delete_task_request: DelComTaskRequest):
+    try:
+        detail_data = await detail_task(delete_task_request.user_id, delete_task_request.task_id)
+        return {"status": "success", "data": detail_data} 
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))

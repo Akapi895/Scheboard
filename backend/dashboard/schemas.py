@@ -22,3 +22,10 @@ class ChartRequest(BaseModel):
 class ChartResponse(BaseModel):
     status: str
     data: Dict
+
+class DelComTaskRequest(BaseModel):
+    user_id: int
+    task_id: int
+
+class DelComTaskResponse(BaseModel):
+    status: str

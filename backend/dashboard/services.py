@@ -147,3 +147,50 @@ async def get_donutchart_data(user_id: int) -> dict:
 
         return donutchart_data
 
+async def delete_task(user_id: int, task_id: int) -> bool:
+    async with aiosqlite.connect(DATABASE) as db:
+        cursor = await db.execute('''
+            DELETE FROM tasks WHERE user_id = ? AND task_id = ?
+        ''', (user_id, task_id))
+        await db.commit()
+        return cursor.rowcount > 0
+
+async def complete_task(user_id: int, task_id: int) -> bool:
+    async with aiosqlite.connect(DATABASE) as db:
+        cursor = await db.execute('''
+            UPDATE tasks SET status = 'completed' 
+            WHERE user_id = ? AND task_id = ?
+        ''', (user_id, task_id))
+        await db.commit()
+        return cursor.rowcount > 0
+    
+async def detail_task(user_id: int, task_id: int) -> dict:
+    async with aiosqlite.connect(DATABASE) as db:
+        cursor = await db.execute('''
+            SELECT 
+                task_id, task_name, task_type, 
+                description, category, priority, 
+                status, estimated_time, due_date, parent_task_id
+            FROM tasks
+            WHERE user_id = ? AND task_id = ?
+        ''', (user_id, task_id))
+        task = await cursor.fetchone()
+        await cursor.close()
+
+        if not task:
+            raise Exception("Task not found")
+
+        task_detail = {
+            "task_id": task[0],
+            "task_name": task[1],
+            "task_type": task[2],
+            "description": task[3],
+            "category": task[4],
+            "priority": task[5],
+            "status": task[6],
+            "estimated_time": task[7],
+            "due_date": task[8],
+            "parent_task_id": task[9]
+        }
+
+        return task_detail
