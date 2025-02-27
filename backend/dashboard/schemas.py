@@ -29,3 +29,20 @@ class DelComTaskRequest(BaseModel):
 
 class DelComTaskResponse(BaseModel):
     status: str
+
+class EditTaskRequest(BaseModel):
+    task_id: int
+    task_name: str
+    description: str
+    priority: str
+    status: str
+    estimated_time: int
+    due_date: str
+
+class EditTaskResponse(BaseModel):
+    status: str
+    data: Dict
+
+class UpcomingTaskResponse(BaseModel):
+    status: str
+    data: list[Dict]

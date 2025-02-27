@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import aiosqlite
 from database import DATABASE
+from .schemas import EditTaskRequest
 
 async def update_user_mood(user_id: int, mood: str) -> dict:
     async with aiosqlite.connect(DATABASE) as db:
@@ -88,7 +89,6 @@ async def get_piechart_data(user_id: int) -> dict:
         await cursor.close()
 
         total_tasks = sum(task[1] for task in tasks)
-        print(total_tasks)
         if total_tasks == 0:
             raise Exception("No completed tasks found")
 
@@ -194,3 +194,68 @@ async def detail_task(user_id: int, task_id: int) -> dict:
         }
 
         return task_detail
+    
+async def edit_task(edit_task_request: EditTaskRequest) -> dict:
+    async with aiosqlite.connect(DATABASE) as db:
+        await db.execute('''
+            UPDATE tasks
+            SET task_name = ?, description = ?, priority = ?, 
+            status = ?, estimated_time = ?, due_date = ?
+            WHERE task_id = ?
+        ''', (
+            edit_task_request.task_name,
+            edit_task_request.description,
+            edit_task_request.priority,
+            edit_task_request.status,
+            edit_task_request.estimated_time,
+            edit_task_request.due_date,
+            edit_task_request.task_id
+        ))
+        await db.commit()
+
+        cursor = await db.execute('''
+            SELECT task_id, task_name, description, priority, due_date
+            FROM tasks
+            WHERE task_id = ?
+        ''', (edit_task_request.task_id,))
+        task = await cursor.fetchone()
+        await cursor.close()
+
+        if not task:
+            raise Exception("Task not found")
+
+        edited_task = {
+            "task_id": task[0],
+            "task_name": task[1],
+            "description": task[2],
+            "priority": task[3],
+            "due_date": task[4]
+        }
+
+        return edited_task
+
+async def upcoming_task(user_id: int) -> list[dict]:
+    async with aiosqlite.connect(DATABASE) as db:
+        today = datetime.now().strftime("%Y-%m-%d")
+        cursor = await db.execute('''
+            SELECT task_id, task_name, task_type, description, priority, due_date
+            FROM tasks
+            WHERE user_id = ? AND DATE(due_date) = DATE(?)
+            AND status IS NOT 'completed'
+        ''', (user_id, today))
+        tasks = await cursor.fetchall()
+        await cursor.close()
+
+        print(111111111)
+        overall_tasks = []
+        for task in tasks:
+            overall_tasks.append({
+                "task_id": task[0],
+                "task_name": task[1],
+                "task_type": task[2],
+                "description": task[3],
+                "priority": task[4],
+                "due_date": task[5]
+            })
+
+        return overall_tasks
