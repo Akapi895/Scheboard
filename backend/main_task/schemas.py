@@ -23,3 +23,39 @@ class SubTaskDetailRequest(BaseModel):
 class SubTaskDetailResponse(BaseModel):
     status: str
     data: Dict
+
+class SubTaskCreateRequest(BaseModel):
+    user_id: int
+    task_name: str
+    description: str
+    category: str
+    priority: str
+    status: str
+    estimated_time: int
+    due_date: str
+
+class SubTaskCreateResponse(BaseModel):
+    status: str
+    data: Dict
+
+class TaskUpdateRequest(BaseModel):
+    user_id: int
+    task_id: int
+    task_name: str
+    description: str
+    category: str
+    priority: str
+    status: str
+    estimated_time: int
+    due_date: str
+
+class TaskUpdateResponse(BaseModel):
+    status: str
+    data: Dict
+
+class SubTaskDeleteRequest(BaseModel):
+    user_id: int
+    task_id: int
+
+class SubTaskDeleteResponse(BaseModel):
+    status: str
