@@ -1,8 +1,9 @@
 from fastapi import HTTPException
 import aiosqlite
 from database import DATABASE
-from .schemas import SubTaskCreateRequest, TaskUpdateRequest
+from .schemas import SubTaskCreateRequest, TaskUpdateRequest, StatusUpdateRequest, UploadResourceRequest
 
+# Task
 async def get_main_task_list(user_id: int, main_task_id: int) -> dict:
     async with aiosqlite.connect(DATABASE) as db:
         cursor = await db.execute('''
@@ -168,3 +169,57 @@ async def user_delete_subtask(user_id: int, task_id: int):
         cursor = await db.execute("DELETE FROM tasks WHERE task_id = ? AND user_id = ?", (task_id, user_id))
         await db.commit()
         await cursor.close()
+
+async def update_subtask_status(subtask_request: StatusUpdateRequest):
+    async with aiosqlite.connect(DATABASE) as db:
+        await db.execute('''
+            UPDATE tasks
+            SET status = ?
+            WHERE task_id = ? AND user_id = ?
+        ''', (subtask_request.status, subtask_request.task_id, subtask_request.user_id))
+        await db.commit()
+
+# Resource
+async def delete_task_resource(task_id: int, resource_id: int):
+    async with aiosqlite.connect(DATABASE) as db:
+        cursor = await db.execute("DELETE FROM resources WHERE resource_id = ? AND task_id = ?", (resource_id, task_id))
+        await db.commit()
+        await cursor.close()
+
+async def get_task_resources(task_id: int) -> list[dict]:
+    async with aiosqlite.connect(DATABASE) as db:
+        cursor = await db.execute('''
+            SELECT resource_id, title, type, url, tag, task_id
+            FROM resources
+            WHERE task_id = ?
+        ''', (task_id,))
+        resources = await cursor.fetchall()
+        await cursor.close()
+
+        resource_list = []
+        for resource in resources:
+            resource_list.append({
+                "resource_id": resource[0],
+                "title": resource[1],
+                "type": resource[2],
+                "url": resource[3],
+                "tag": resource[4],
+                "task_id": resource[5]
+            })
+
+        return resource_list
+    
+async def upload_task_resources(upload_request: list[UploadResourceRequest]):
+        async with aiosqlite.connect(DATABASE) as db:
+            for resource in upload_request:
+                await db.execute('''
+                    INSERT INTO resources (task_id, type, title, url, tag)
+                    VALUES (?, ?, ?, ?, ?)
+                ''', (
+                    resource.task_id,
+                    resource.type,
+                    resource.title,
+                    resource.url,
+                    resource.tag
+                ))
+            await db.commit()

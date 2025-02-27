@@ -59,3 +59,35 @@ class SubTaskDeleteRequest(BaseModel):
 
 class SubTaskDeleteResponse(BaseModel):
     status: str
+
+class StatusUpdateRequest(BaseModel):
+    user_id: int
+    task_id: int
+    status: str
+
+class StatusUpdateResponse(BaseModel):
+    status: str
+
+class DeleteResourceRequest(BaseModel):
+    task_id: int
+    resource_id: int
+
+class DeleteResourceResponse(BaseModel):
+    status: str
+
+class ResourceRequest(BaseModel):
+    task_id: int
+
+class ResourceResponse(BaseModel):
+    status: str
+    data: list[Dict]
+
+class UploadResourceRequest(BaseModel):
+    task_id: int
+    type: str
+    title: str
+    url: str
+    tag: str
+
+class UploadResourceResponse(BaseModel):
+    status: str
