@@ -1,9 +1,8 @@
 from pydantic import BaseModel
 from typing import Optional
-from bson import ObjectId
 
 class Resource(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None  # Changed from str to int for SQLite
     type: str
     title: str
     url: Optional[str] = None  # Đã đổi từ HttpUrl thành str
@@ -13,4 +12,3 @@ class Resource(BaseModel):
 
     class Config:
         orm_mode = True
-        json_encoders = {ObjectId: str}

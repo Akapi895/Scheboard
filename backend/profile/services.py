@@ -1,5 +1,4 @@
-from ..models.user import User
-from ..models.task import Task
+from .models import User, Task
 
 async def get_user_profile(user_id: str) -> dict:
     # Fetch user information from the database
@@ -9,8 +8,12 @@ async def get_user_profile(user_id: str) -> dict:
 
     # Fetch tasks associated with the user
     tasks = await Task.find({"user_id": user_id}).to_list(length=None)
-    total_task = len(tasks)
-    completion_percentage = user.completion_percentage
+    
+    # Calculate total_task and completion_percentage
+    total_task = sum(1 for task in tasks if task.status in ["inprogress", "todo"])
+    completed_tasks = sum(1 for task in tasks if task.status == "completed")
+    total_tasks_ever = len(tasks)
+    completion_percentage = (completed_tasks / total_tasks_ever) * 100 if total_tasks_ever > 0 else 0
 
     # Prepare the response data
     response_data = {
