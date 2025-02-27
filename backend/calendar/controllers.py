@@ -11,7 +11,7 @@ class TaskResponse(BaseModel):
 
 @router.get("/tasks", response_model=TaskResponse)
 async def get_tasks_endpoint(user_id: int = Query(...), date: str = Query(...)):
-    tasks = await get_tasks(user_id, date)
+    tasks = await get_tasks(user_id)
     return {"status": "success", "data": {"tasks": tasks}}
 
 
@@ -20,20 +20,20 @@ class TaskDetailResponse(BaseModel):
     data: Dict
 
 @router.get("/tasks/detail", response_model=TaskDetailResponse)
-async def get_task_detail_endpoint(task_id: int = Query(...)):  
+async def get_task_detail_endpoint(user_id: int = Query(...), task_id: int = Query(...)):  
     task = await get_task_detail(task_id)
     return {"status": "success", "data": {"task": task}}
 
 
 class TaskCreateRequest(BaseModel):
     task_name: str
+    task_type: str
     description: str
     category: str
     priority: str
     status: str
     estimated_time: int
     due_date: str
-    task_type: str
     user_id: int
     parent_task_id: Optional[int] = None
 
@@ -45,19 +45,25 @@ class TaskCreateResponse(BaseModel):
 @router.post("/tasks/create", response_model=TaskCreateResponse)
 async def create_task_endpoint(task: TaskCreateRequest):
     task_id = await create_task(task.model_dump())  # Ensure it's converted to a dict
-    return {"status": "success", "data": {"task_id": task_id}}
+    return {"status": "success", "data": {
+        "task_id": task_id,
+        "task_name": task.task_name,
+        "task_type": task.task_type,
+        "priority": task.priority,
+        "due_date": task.due_date
+    }}
 
 
 class TaskUpdateRequest(BaseModel):
     task_id: int
     task_name: str
+    task_type: str
     description: str
     category: str
     priority: str
     status: str
     estimated_time: int
     due_date: str
-    task_type: str
     user_id: int
     parent_task_id: Optional[int] = None
 
@@ -68,7 +74,13 @@ class TaskUpdateResponse(BaseModel):
 @router.put("/tasks/update", response_model=TaskUpdateResponse)
 async def update_task_endpoint(task: TaskUpdateRequest):
     await update_task(task.task_id, task.model_dump())
-    return {"status": "success", "data": {}}
+    return {"status": "success", "data": {
+        "task_id": task.task_id,
+        "task_name": task.task_name,
+        "task_type": task.task_type,
+        "priority": task.priority,
+        "due_date": task.due_date
+    }}
 
 
 class TaskDeleteRequest(BaseModel):

@@ -1,9 +1,9 @@
 import aiosqlite
 from database import DATABASE
 
-async def get_tasks(user_id: int, date: str) -> list:
+async def get_tasks(user_id: int) -> list:
     async with aiosqlite.connect(DATABASE) as db:
-        cursor = await db.execute("SELECT * FROM tasks WHERE user_id = ? AND date = ?", (user_id, date))
+        cursor = await db.execute("SELECT * FROM tasks WHERE user_id = ?", (user_id))
         tasks = await cursor.fetchall()
         await cursor.close()
         return tasks
