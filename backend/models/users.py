@@ -1,9 +1,8 @@
 from pydantic import BaseModel
 from typing import Optional
-from bson import ObjectId
 
 class User(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None  # Changed from str to int for SQLite
     username: str
     email: str  # Đã đổi từ EmailStr thành str
     learning_style: Optional[str] = None
@@ -14,4 +13,3 @@ class User(BaseModel):
 
     class Config:
         orm_mode = True
-        json_encoders = {ObjectId: str}
