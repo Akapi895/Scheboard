@@ -3,7 +3,7 @@ from database import DATABASE
 
 async def get_tasks(user_id: int) -> list:
     async with aiosqlite.connect(DATABASE) as db:
-        cursor = await db.execute("SELECT * FROM tasks WHERE user_id = ?", (user_id))
+        cursor = await db.execute("SELECT * FROM tasks WHERE user_id = ?", (user_id,))
         tasks = await cursor.fetchall()
         await cursor.close()
         return tasks

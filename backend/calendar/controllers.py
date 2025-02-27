@@ -5,13 +5,16 @@ from .services import get_tasks, get_task_detail, create_task, update_task, dele
 
 router = APIRouter()
 
+class TaskRequest(BaseModel):
+    user_id: int
+
 class TaskResponse(BaseModel):
     status: str
     data: Dict
 
 @router.get("/tasks", response_model=TaskResponse)
-async def get_tasks_endpoint(user_id: int = Query(...), date: str = Query(...)):
-    tasks = await get_tasks(user_id)
+async def get_tasks_endpoint(request: TaskRequest):
+    tasks = await get_tasks(request.user_id)
     return {"status": "success", "data": {"tasks": tasks}}
 
 
