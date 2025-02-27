@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
-from services import get_user_profile
-# from ..models.user import User
-# from ..models.task import Task
 from pydantic import BaseModel
 from typing import Dict
+from .services import get_user_profile
 
 router = APIRouter()
 
