@@ -12,21 +12,26 @@ class TaskResponse(BaseModel):
     status: str
     data: Dict
 
+#tested
 @router.get("/tasks", response_model=TaskResponse)
 async def get_tasks_endpoint(request: TaskRequest):
     tasks = await get_tasks(request.user_id)
     return {"status": "success", "data": {"tasks": tasks}}
 
 
+class TaskDetailRequest(BaseModel):
+    user_id: int
+    task_id: int
+
 class TaskDetailResponse(BaseModel):
     status: str
     data: Dict
 
+# tested
 @router.get("/tasks/detail", response_model=TaskDetailResponse)
-async def get_task_detail_endpoint(user_id: int = Query(...), task_id: int = Query(...)):  
-    task = await get_task_detail(task_id)
-    return {"status": "success", "data": {"task": task}}
-
+async def get_task_detail_endpoint(request: TaskDetailRequest):  
+    task = await get_task_detail(request.task_id)
+    return {"status": "success", "data": {"task": task}} 
 
 class TaskCreateRequest(BaseModel):
     task_name: str

@@ -1,6 +1,7 @@
 import aiosqlite
 from database import DATABASE
 
+# tested
 async def get_tasks(user_id: int) -> list:
     async with aiosqlite.connect(DATABASE) as db:
         cursor = await db.execute("SELECT * FROM tasks WHERE user_id = ?", (user_id,))
@@ -8,10 +9,10 @@ async def get_tasks(user_id: int) -> list:
         await cursor.close()
         return tasks
 
- 
+# tested
 async def get_task_detail(task_id: int) -> dict:
     async with aiosqlite.connect(DATABASE) as db:
-        cursor = await db.execute("SELECT * FROM tasks WHERE id = ?", (task_id,))
+        cursor = await db.execute("SELECT * FROM tasks WHERE task_id = ?", (task_id,))
         task = await cursor.fetchone()
         await cursor.close()
         return task
