@@ -246,7 +246,6 @@ async def upcoming_task(user_id: int) -> list[dict]:
         tasks = await cursor.fetchall()
         await cursor.close()
 
-        print(111111111)
         overall_tasks = []
         for task in tasks:
             overall_tasks.append({
