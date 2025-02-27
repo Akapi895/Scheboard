@@ -1,9 +1,8 @@
 from pydantic import BaseModel
 from typing import Optional
-from bson import ObjectId
 
 class Task(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None  # Changed from str to int for SQLite
     task_name: str
     description: str
     category: str
@@ -13,8 +12,7 @@ class Task(BaseModel):
     due_date: str
     task_type: str
     user_id: str
-    parent_task_id: Optional[str] = None
+    parent_task_id: Optional[int] = None  # Changed from str to int for SQLite
 
     class Config:
         orm_mode = True
-        json_encoders = {ObjectId: str}
