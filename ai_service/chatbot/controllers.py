@@ -1,23 +1,29 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Dict
-from .services import get_chat_response
+from typing import List, Dict
+from ai_service.chatbot.services import get_chat_response, get_chat_history
 
 router = APIRouter()
 
-class ChatRequest(BaseModel):
-    user_id: int
+class ChatMessage(BaseModel):
+    user_id: str
     prompt: str
 
 class ChatResponse(BaseModel):
     status: str
     response: str
 
-@router.get("/api/ai/chat/response", response_model=ChatResponse)
-async def chat_response(chat_request: ChatRequest):
-    try:
-        response = await get_chat_response(chat_request.user_id, chat_request.prompt)
-        print(response)
-        return {"status": "success", "response": response}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@router.get("/chat/", response_model=ChatResponse)
+async def chat(message: ChatMessage):
+    response = await get_chat_response(message.user_id, message.prompt)
+    history = get_chat_history(message.user_id) or []
+    
+    return {"status": "success", "response": response}
+
+
+@router.get("/chat/{user_id}")
+async def get_user_chat_history(user_id: str):
+    history = get_chat_history(user_id)
+    if history is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"user_id": user_id, "history": history}
