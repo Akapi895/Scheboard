@@ -12,7 +12,6 @@ class ChatResponse(BaseModel):
     status: str
     response: str
 
-# đây là api dùng để call 
 @router.get("/api/ai/chat/response", response_model=ChatResponse)
 async def chat_response(chat_request: ChatRequest):
     try:
