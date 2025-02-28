@@ -1,0 +1,23 @@
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from typing import Dict
+from .services import get_chat_response
+
+router = APIRouter()
+
+class ChatRequest(BaseModel):
+    prompt: str
+
+class ChatResponse(BaseModel):
+    status: str
+    response: str
+
+# đây là api dùng để call 
+@router.get("/api/ai/chat/response", response_model=ChatResponse)
+async def chat_response(chat_request: ChatRequest):
+    try:
+        response = await get_chat_response(chat_request.prompt)
+        print(response)
+        return {"status": "success", "response": response}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
