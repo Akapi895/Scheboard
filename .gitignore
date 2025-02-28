@@ -4,5 +4,7 @@
 
 backend/__pycache__
 backend/*/__pycache__
+ai_service/__pycache__
+ai_service/*/__pycache__
 
 # scheboard.db
