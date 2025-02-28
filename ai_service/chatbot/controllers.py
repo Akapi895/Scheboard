@@ -11,14 +11,15 @@ class ChatMessage(BaseModel):
 
 class ChatResponse(BaseModel):
     status: str
-    response: str
+    data: Dict[str, object]
 
 @router.post("/chat/", response_model=ChatResponse)
 async def chat(message: ChatMessage):
-    # Generate a response
     response = await get_chat_response(message.user_id, message.prompt)
+    history = get_chat_history(message.user_id) or []
     
-    return {"status": "success", "response": response}
+    return ChatResponse(status="success", data={"response": response, "history": history})
+
 
 @router.get("/chat/{user_id}")
 async def get_user_chat_history(user_id: str):
