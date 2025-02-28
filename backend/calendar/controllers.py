@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Dict, Optional
 from .services import get_tasks, get_task_detail, create_task, update_task, delete_task, update_task_status
