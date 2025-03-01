@@ -69,7 +69,7 @@ async def complete_task_endpoint(delete_task_request: DelComTaskRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.put("/api/dashboard/upcoming/detail", response_model=DashboardResponse)
+@router.get("/api/dashboard/upcoming/detail", response_model=DashboardResponse)
 async def detail_task_endpoint(delete_task_request: DelComTaskRequest):
     try:
         detail_data = await detail_task(delete_task_request.user_id, delete_task_request.task_id)

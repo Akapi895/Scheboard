@@ -47,8 +47,7 @@ async def generate_calendar_plan(request: CalendarAIRequest):
 async def decline_one_task(
     user_id: int = Query(..., description="User ID"),
     task_name: str = Query(..., description="Task name")
-):
-
+    ):
     try:
         await delete_one_session_task(user_id, task_name)
         return {"status": "success", "message": f"Task '{task_name}' declined successfully."}
@@ -83,6 +82,7 @@ async def accept_all_tasks(user_id: int, tasks: List[AITask]):
     except Exception as e:
         logging.error(f"Error accepting all tasks for user {user_id}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to accept all tasks.")
+    
 # New combined request model
 class CalendarSuggestAndSaveRequest(BaseModel):
     user_id: int
