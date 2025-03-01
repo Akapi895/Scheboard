@@ -5,7 +5,7 @@ import asyncio
 import logging
 from typing import List, Optional
 from dotenv import load_dotenv
-#from database import DATABASE  # type: ignore
+from database import DATABASE  # type: ignore
 from ai_service.calendar.chatbot import chat_with_gemini
 
 load_dotenv()
