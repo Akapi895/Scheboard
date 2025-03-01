@@ -6,8 +6,10 @@ from .chatbot import chat_with_gemini
 
 load_dotenv()
 
-instructions_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instructions.json')
-print(instructions_path)
+instructions_path = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    'instructions.json'
+)
 
 chat_history: Dict[str, List[Dict[str, str]]] = {}
 
