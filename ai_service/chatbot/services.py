@@ -20,7 +20,7 @@ async def get_chat_response(user_id: int, prompt: str) -> str:
     history = chat_history.get(user_id, [])
     conversation_context = ""
     if history:
-        recent_history = history[-5:] if len(history) > 5 else history
+        recent_history = history[-8:] if len(history) > 8 else history
         for message in recent_history:
             conversation_context += f"User: {message['prompt']}\n"
             conversation_context += f"Assistant: {message['answer']}\n"
@@ -35,9 +35,9 @@ def save_chat_message(user_id: int, prompt: str, answer: str):
         chat_history[user_id] = []
     chat_history[user_id].append({"prompt": prompt, "answer": answer})
     
-    # Keep only the last 10 messages
-    if len(chat_history[user_id]) > 10:
-        chat_history[user_id] = chat_history[user_id][-10:]
+    # Keep only the last 15 messages
+    if len(chat_history[user_id]) > 15:
+        chat_history[user_id] = chat_history[user_id][-15:]
 
 def get_chat_history(user_id: int) -> List[Dict[str, str]]:
     return chat_history.get(user_id)
