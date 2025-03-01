@@ -4,8 +4,8 @@ from fastapi import FastAPI
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from chatbot.controllers import router as chatbot_router
-from ai_service.calendar.calendar_controller import router as calendar_router
+from ai_service.chatbot.controllers import router as chatbot_router
+from ai_service.calendar.controllers import router as calendar_router
 
 app = FastAPI()
 
