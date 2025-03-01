@@ -6,7 +6,7 @@ from ai_service.chatbot.services import get_chat_response, get_chat_history
 router = APIRouter()
 
 class ChatMessage(BaseModel):
-    user_id: str
+    user_id: int
     prompt: str
 
 class ChatResponse(BaseModel):
@@ -22,7 +22,7 @@ async def chat(message: ChatMessage):
 
 
 @router.get("/api/ai/chat/response/{user_id}")
-async def get_user_chat_history(user_id: str):
+async def get_user_chat_history(user_id: int):
     history = get_chat_history(user_id)
     if history is None:
         raise HTTPException(status_code=404, detail="User not found")
