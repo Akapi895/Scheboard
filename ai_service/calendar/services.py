@@ -3,6 +3,8 @@ import json
 import aiosqlite
 import asyncio
 import logging
+import re
+import json
 from typing import List, Optional
 from dotenv import load_dotenv
 from backend.database import DATABASE
@@ -45,19 +47,19 @@ async def get_calendar_plan_suggestions(prompt: str, tasks: List[dict]) -> str:
     response = chat_with_gemini(combined_text, instruction)
     return response
 
-async def get_session_tasks(user_id: str):
+async def get_session_tasks(user_id: int):
     async with session_lock:
         return session_tasks.get(user_id, [])
 
-async def save_session_tasks(user_id: str, tasks: list):
+async def save_session_tasks(user_id: int, tasks: list):
     async with session_lock:
         session_tasks[user_id] = tasks
 
-async def delete_all_session_tasks(user_id: str):
+async def delete_all_session_tasks(user_id: int):
     async with session_lock:
         session_tasks.pop(user_id, None)
 
-async def delete_one_session_task(user_id: str, task_name: str):
+async def delete_one_session_task(user_id: int, task_name: str):
     async with session_lock:
         tasks = session_tasks.get(user_id, [])
         session_tasks[user_id] = [
@@ -65,7 +67,7 @@ async def delete_one_session_task(user_id: str, task_name: str):
         ]
         logging.info(f"Deleted session task '{task_name}' for user {user_id}.")
 
-async def _save_tasks_to_db(user_id: str, tasks: list) -> bool:
+async def _save_tasks_to_db(user_id: int, tasks: list) -> bool:
     if not tasks:
         return False
 
@@ -102,7 +104,7 @@ async def _save_tasks_to_db(user_id: str, tasks: list) -> bool:
         logging.error(f"Error saving tasks to database for user {user_id}: {e}", exc_info=True)
         return False
 
-async def save_all_session_tasks(user_id: str, tasks: list = None):
+async def save_all_session_tasks(user_id: int, tasks: list = None):
     if tasks is not None:
         # Nếu có truyền tasks trực tiếp, lưu luôn
         if await _save_tasks_to_db(user_id, tasks):
@@ -113,7 +115,7 @@ async def save_all_session_tasks(user_id: str, tasks: list = None):
         if await _save_tasks_to_db(user_id, tasks_in_session):
             await delete_all_session_tasks(user_id)
 
-async def save_one_session_task(user_id: str, task_name: str):
+async def save_one_session_task(user_id: int, task_name: str):
     async with session_lock:
         tasks = session_tasks.get(user_id, [])
         task_to_save = next((t for t in tasks if t.get("task_name") == task_name), None)
@@ -127,10 +129,6 @@ async def save_one_session_task(user_id: str, task_name: str):
     if await _save_tasks_to_db(user_id, [task_to_save]):
         # Xóa task vừa lưu khỏi session
         await save_session_tasks(user_id, remaining_tasks)
-
-# Language: Python
-import re
-import json
 
 async def extract_tasks_from_response(response: str) -> List[dict]:
     """

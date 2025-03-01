@@ -11,27 +11,33 @@ instructions_path = os.path.join(
     'instructions.json'
 )
 
-chat_history: Dict[str, List[Dict[str, str]]] = {}
+chat_history: Dict[int, List[Dict[str, str]]] = {}
 
-async def get_chat_response(user_id: str, prompt: str) -> str:
+async def get_chat_response(user_id: int, prompt: str) -> str:
     with open(instructions_path, 'r', encoding='utf-8') as f:
         instructions = json.load(f)
     instruction = instructions.get('instruction_1')
-    response = chat_with_gemini(prompt, instruction)
-    
-    # Save the chat message
+    history = chat_history.get(user_id, [])
+    conversation_context = ""
+    if history:
+        recent_history = history[-8:] if len(history) > 8 else history
+        for message in recent_history:
+            conversation_context += f"User: {message['prompt']}\n"
+            conversation_context += f"Assistant: {message['answer']}\n"
+    contextualized_prompt = f"{instruction}\n\nPrevious conversation:\n{conversation_context}\nUser: {prompt}"
+    response = chat_with_gemini(contextualized_prompt, "")
     save_chat_message(user_id, prompt, response)
     
     return response
 
-def save_chat_message(user_id: str, prompt: str, answer: str):
+def save_chat_message(user_id: int, prompt: str, answer: str):
     if user_id not in chat_history:
         chat_history[user_id] = []
     chat_history[user_id].append({"prompt": prompt, "answer": answer})
     
-    # Keep only the last 10 messages
-    if len(chat_history[user_id]) > 10:
-        chat_history[user_id] = chat_history[user_id][-10:]
+    # Keep only the last 15 messages
+    if len(chat_history[user_id]) > 15:
+        chat_history[user_id] = chat_history[user_id][-15:]
 
-def get_chat_history(user_id: str) -> List[Dict[str, str]]:
+def get_chat_history(user_id: int) -> List[Dict[str, str]]:
     return chat_history.get(user_id)
