@@ -3,6 +3,8 @@ import json
 import aiosqlite
 import asyncio
 import logging
+import re
+import json
 from typing import List, Optional
 from dotenv import load_dotenv
 from backend.database import DATABASE
@@ -127,10 +129,6 @@ async def save_one_session_task(user_id: int, task_name: str):
     if await _save_tasks_to_db(user_id, [task_to_save]):
         # Xóa task vừa lưu khỏi session
         await save_session_tasks(user_id, remaining_tasks)
-
-# Language: Python
-import re
-import json
 
 async def extract_tasks_from_response(response: str) -> List[dict]:
     """

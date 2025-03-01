@@ -47,7 +47,6 @@ async def generate_calendar_plan(request: CalendarAIRequest):
 @router.delete("/api/calendar/ai/decline/one")
 async def decline_one_task(
     user_id: int = Query(..., description="User ID"),
-    user_id: int = Query(..., description="User ID"),
     task_name: str = Query(..., description="Task name")
 ):
 
@@ -60,7 +59,6 @@ async def decline_one_task(
 
 @router.delete("/api/calendar/ai/decline/all")
 async def decline_all_tasks(user_id: int = Query(..., description="User ID")):
-async def decline_all_tasks(user_id: int = Query(..., description="User ID")):
     try:
         await delete_all_session_tasks(user_id)
         return {"status": "success", "message": "All AI-generated tasks declined successfully."}
@@ -69,7 +67,6 @@ async def decline_all_tasks(user_id: int = Query(..., description="User ID")):
         raise HTTPException(status_code=500, detail="Failed to decline all tasks.")
 
 @router.post("/api/calendar/ai/accept/one")
-async def accept_one_task(user_id: int, task: AITask):
 async def accept_one_task(user_id: int, task: AITask):
     try:
         await save_one_session_task(user_id, task.task_name)
