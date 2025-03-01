@@ -62,16 +62,6 @@ class AIResponse(BaseModel):
     status: str
     tasks: List[AITask]
 
-@router.post("/api/calendar/ai/generate", response_model=AIResponse)
-async def generate_ai_tasks(user_id: str, request: AIRequest):
-    try:
-        tasks_as_dict = [t.dict() for t in request.tasks]
-        await save_session_tasks(user_id, tasks_as_dict)
-        return AIResponse(status="success", tasks=request.tasks)
-    except Exception as e:
-        logging.error(f"Error generating AI tasks for user {user_id}: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to generate AI tasks.")
-
 @router.delete("/api/calendar/ai/decline/one")
 async def decline_one_task(
     user_id: str = Query(..., description="User ID"),
@@ -115,25 +105,7 @@ async def accept_all_tasks(user_id: str, request: AIRequest):
 
 class AIResponseRequest(BaseModel):
     user_id: str
-    response: str
-
-@router.post("/api/calendar/ai/extract_and_save", response_model=AIResponse)
-async def extract_and_save_tasks(request: AIResponseRequest):
-    try:
-        # Extract tasks from the AI response
-        extracted_tasks = await extract_tasks_from_response(request.response)
-        
-        # Save the extracted tasks to the session
-        await save_session_tasks(request.user_id, extracted_tasks)
-        
-        # Convert dictionary tasks back to AITask objects for response
-        ai_tasks = [AITask(**task) for task in extracted_tasks]
-        
-        return AIResponse(status="success", tasks=ai_tasks)
-    except Exception as e:
-        logging.error(f"Error extracting and saving tasks for user {request.user_id}: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to extract and save tasks from response.")
-    
+    response: str   
 
 # New combined request model
 class CalendarSuggestAndSaveRequest(BaseModel):
@@ -147,7 +119,7 @@ class CalendarSuggestAndSaveResponse(BaseModel):
     ai_response: str
     tasks: List[AITask]
 
-@router.post("/api/calendar/ai/suggest_and_save", response_model=CalendarSuggestAndSaveResponse)
+@router.post("/api/calendar/ai/generate", response_model=CalendarSuggestAndSaveResponse)
 async def generate_suggestions_and_save(request: CalendarSuggestAndSaveRequest):
     try:
         # Step 1: Generate AI suggestions
