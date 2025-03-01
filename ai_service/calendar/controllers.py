@@ -54,7 +54,7 @@ class AITask(BaseModel):
     parent_task_id: Optional[int]
 
 class AIRequest(BaseModel):
-    user_id: str
+    user_id: int
     prompt: str
     tasks: List[AITask]
 
@@ -63,7 +63,7 @@ class AIResponse(BaseModel):
     tasks: List[AITask]
 
 @router.post("/api/calendar/ai/generate", response_model=AIResponse)
-async def generate_ai_tasks(user_id: str, request: AIRequest):
+async def generate_ai_tasks(user_id: int, request: AIRequest):
     try:
         tasks_as_dict = [t.dict() for t in request.tasks]
         await save_session_tasks(user_id, tasks_as_dict)
@@ -74,7 +74,7 @@ async def generate_ai_tasks(user_id: str, request: AIRequest):
 
 @router.delete("/api/calendar/ai/decline/one")
 async def decline_one_task(
-    user_id: str = Query(..., description="User ID"),
+    user_id: int = Query(..., description="User ID"),
     task_name: str = Query(..., description="Task name")
 ):
 
@@ -86,7 +86,7 @@ async def decline_one_task(
         raise HTTPException(status_code=500, detail="Failed to decline task.")
 
 @router.delete("/api/calendar/ai/decline/all")
-async def decline_all_tasks(user_id: str = Query(..., description="User ID")):
+async def decline_all_tasks(user_id: int = Query(..., description="User ID")):
     try:
         await delete_all_session_tasks(user_id)
         return {"status": "success", "message": "All AI-generated tasks declined successfully."}
@@ -95,7 +95,7 @@ async def decline_all_tasks(user_id: str = Query(..., description="User ID")):
         raise HTTPException(status_code=500, detail="Failed to decline all tasks.")
 
 @router.post("/api/calendar/ai/accept/one")
-async def accept_one_task(user_id: str, task: AITask):
+async def accept_one_task(user_id: int, task: AITask):
     try:
         await save_one_session_task(user_id, task.task_name)
         return {"status": "success", "message": f"Task '{task.task_name}' accepted successfully."}
@@ -104,7 +104,7 @@ async def accept_one_task(user_id: str, task: AITask):
         raise HTTPException(status_code=500, detail="Failed to accept task.")
 
 @router.post("/api/calendar/ai/accept/all")
-async def accept_all_tasks(user_id: str, request: AIRequest):
+async def accept_all_tasks(user_id: int, request: AIRequest):
     try:
         tasks_as_dict = [t.dict() for t in request.tasks]
         await save_all_session_tasks(user_id, tasks_as_dict)
@@ -114,7 +114,7 @@ async def accept_all_tasks(user_id: str, request: AIRequest):
         raise HTTPException(status_code=500, detail="Failed to accept all tasks.")
 
 class AIResponseRequest(BaseModel):
-    user_id: str
+    user_id: int
     response: str
 
 @router.post("/api/calendar/ai/extract_and_save", response_model=AIResponse)
@@ -137,7 +137,7 @@ async def extract_and_save_tasks(request: AIResponseRequest):
 
 # New combined request model
 class CalendarSuggestAndSaveRequest(BaseModel):
-    user_id: str
+    user_id: int
     prompt: str
     tasks: List[Task]
 
