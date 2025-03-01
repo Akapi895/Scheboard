@@ -13,7 +13,7 @@ class ChatResponse(BaseModel):
     status: str
     response: str
 
-@router.get("/api/ai/chat/response/", response_model=ChatResponse)
+@router.post("/api/ai/chat/response", response_model=ChatResponse)
 async def chat(message: ChatMessage):
     response = await get_chat_response(message.user_id, message.prompt)
     history = get_chat_history(message.user_id) or []
