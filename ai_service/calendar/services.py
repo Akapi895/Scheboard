@@ -5,7 +5,7 @@ import asyncio
 import logging
 from typing import List, Optional
 from dotenv import load_dotenv
-from database import DATABASE  # type: ignore
+from backend.database import DATABASE
 from ai_service.calendar.chatbot import chat_with_gemini
 
 load_dotenv()
@@ -127,3 +127,40 @@ async def save_one_session_task(user_id: str, task_name: str):
     if await _save_tasks_to_db(user_id, [task_to_save]):
         # Xóa task vừa lưu khỏi session
         await save_session_tasks(user_id, remaining_tasks)
+
+# Language: Python
+import re
+import json
+
+async def extract_tasks_from_response(response: str) -> List[dict]:
+    """
+    Extracts JSON task objects from an AI response that contains formatted code blocks.
+    
+    Args:
+        response: The AI response string containing JSON task blocks
+        
+    Returns:
+        A list of parsed task dictionaries
+    """
+    tasks = []
+    
+    # Regular expression to find JSON code blocks
+    json_pattern = r"```json\s*(\{.*?\})\s*```"
+    matches = re.findall(json_pattern, response, re.DOTALL)
+    
+    for json_str in matches:
+        try:
+            task = json.loads(json_str)
+            
+            # Add default values for category and status if they don't exist
+            if "category" not in task:
+                task["category"] = "study"  # Default category
+            if "status" not in task:
+                task["status"] = "todo"  # Default status
+                
+            tasks.append(task)
+        except json.JSONDecodeError as e:
+            logging.error(f"Failed to parse task JSON: {e}")
+            continue
+    
+    return tasks

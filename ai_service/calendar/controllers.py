@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from typing import List, Optional
 from .services import (
+    extract_tasks_from_response,
     get_calendar_plan_suggestions,
     save_session_tasks,
     save_all_session_tasks,
@@ -15,6 +16,7 @@ router = APIRouter()
 
 
 class Task(BaseModel):
+    task_name: str
     task_id: int
     task_type: str
     description: str
@@ -41,7 +43,6 @@ async def generate_calendar_plan(request: CalendarAIRequest):
 
 
 class AITask(BaseModel):
-    task_id: int
     task_name: str
     task_type: str
     description: str
@@ -111,3 +112,65 @@ async def accept_all_tasks(user_id: str, request: AIRequest):
     except Exception as e:
         logging.error(f"Error accepting all tasks for user {user_id}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to accept all tasks.")
+
+class AIResponseRequest(BaseModel):
+    user_id: str
+    response: str
+
+@router.post("/api/calendar/ai/extract_and_save", response_model=AIResponse)
+async def extract_and_save_tasks(request: AIResponseRequest):
+    try:
+        # Extract tasks from the AI response
+        extracted_tasks = await extract_tasks_from_response(request.response)
+        
+        # Save the extracted tasks to the session
+        await save_session_tasks(request.user_id, extracted_tasks)
+        
+        # Convert dictionary tasks back to AITask objects for response
+        ai_tasks = [AITask(**task) for task in extracted_tasks]
+        
+        return AIResponse(status="success", tasks=ai_tasks)
+    except Exception as e:
+        logging.error(f"Error extracting and saving tasks for user {request.user_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to extract and save tasks from response.")
+    
+
+# New combined request model
+class CalendarSuggestAndSaveRequest(BaseModel):
+    user_id: str
+    prompt: str
+    tasks: List[Task]
+
+# New combined response model
+class CalendarSuggestAndSaveResponse(BaseModel):
+    status: str
+    ai_response: str
+    tasks: List[AITask]
+
+@router.post("/api/calendar/ai/suggest_and_save", response_model=CalendarSuggestAndSaveResponse)
+async def generate_suggestions_and_save(request: CalendarSuggestAndSaveRequest):
+    try:
+        # Step 1: Generate AI suggestions
+        tasks_as_dict = [t.dict() for t in request.tasks]
+        ai_response = await get_calendar_plan_suggestions(request.prompt, tasks_as_dict)
+        
+        # Step 2: Extract tasks from the AI response
+        extracted_tasks = await extract_tasks_from_response(ai_response)
+        
+        # Step 3: Save the extracted tasks to the session
+        await save_session_tasks(request.user_id, extracted_tasks)
+        
+        # Step 4: Convert dictionary tasks back to AITask objects for response
+        ai_tasks = [AITask(**task) for task in extracted_tasks]
+        
+        return CalendarSuggestAndSaveResponse(
+            status="success", 
+            ai_response=ai_response,
+            tasks=ai_tasks
+        )
+    except Exception as e:
+        logging.error(f"Error generating suggestions and saving tasks for user {request.user_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, 
+            detail="Failed to generate suggestions and save tasks."
+        )
