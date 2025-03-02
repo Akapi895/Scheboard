@@ -4,7 +4,8 @@ import aiosqlite
 import asyncio
 import logging
 import re
-from typing import List, Optional, Dict
+import json
+from typing import List, Optional
 from dotenv import load_dotenv
 from backend.database import DATABASE
 from ai_service.calendar.chatbot import chat_with_gemini
@@ -16,55 +17,57 @@ instructions_path = os.path.join(
     'instructions.json'
 )
 
-# In-memory storage for session tasks as a temporary solution
-session_storage = {}
+
+session_tasks = {}
+session_lock = asyncio.Lock()
+
+async def get_calendar_plan_suggestions(prompt: str, tasks: List[dict]) -> str:
+    tasks_text = ""
+    for t in tasks:
+        tasks_text += (
+            f"- Task ID: {t.get('task_id')}, "
+            f"Type: {t.get('task_type')}, "
+            f"Description: {t.get('description')}, "
+            f"Priority: {t.get('priority')}, "
+            f"Estimated Time: {t.get('estimated_time')}, "
+            f"Due Date: {t.get('due_date')}, "
+            f"Parent Task ID: {t.get('parent_task_id')}\n"
+        )
+    combined_text = (
+        f"{prompt}\n\n"
+        "Dưới đây là danh sách task:\n"
+        f"{tasks_text}\n"
+        "Hãy gợi ý cách cải thiện và sắp xếp lịch."
+    )
+
+    with open(instructions_path, 'r', encoding='utf-8') as f:
+        instructions = json.load(f)
+    instruction = instructions.get('instruction_2')
+
+    response = chat_with_gemini(combined_text, instruction)
+    return response
 
 async def get_session_tasks(user_id: int):
-    """Get tasks for a user from session storage"""
-    user_id_str = str(user_id)
-    return session_storage.get(user_id_str, [])
+    async with session_lock:
+        return session_tasks.get(user_id, [])
 
 async def save_session_tasks(user_id: int, tasks: list):
-    """Save tasks for a user to session storage"""
-    user_id_str = str(user_id)
-    session_storage[user_id_str] = tasks
+    async with session_lock:
+        session_tasks[user_id] = tasks
 
 async def delete_all_session_tasks(user_id: int):
-    """Delete all tasks for a user from session storage"""
-    user_id_str = str(user_id)
-    if user_id_str in session_storage:
-        del session_storage[user_id_str]
+    async with session_lock:
+        session_tasks.pop(user_id, None)
 
 async def delete_one_session_task(user_id: int, task_name: str):
-    """Delete a specific task for a user from session storage"""
-    tasks = await get_session_tasks(user_id)
-    updated_tasks = [t for t in tasks if t.get("task_name") != task_name]
-    await save_session_tasks(user_id, updated_tasks)
-    logging.info(f"Deleted session task '{task_name}' for user {user_id}.")
-
-async def save_all_session_tasks(user_id: int, tasks: list = None):
-    """Save all tasks for a user to the database and clear from session storage"""
-    if tasks is not None:
-        if await _save_tasks_to_db(user_id, tasks):
-            await delete_all_session_tasks(user_id)
-    else:
-        tasks_in_session = await get_session_tasks(user_id)
-        if await _save_tasks_to_db(user_id, tasks_in_session):
-            await delete_all_session_tasks(user_id)
-
-async def save_one_session_task(user_id: int, task_name: str):
-    """Save a specific task for a user to the database and remove from session storage"""
-    tasks = await get_session_tasks(user_id)
-    task_to_save = next((t for t in tasks if t.get("task_name") == task_name), None)
-    if not task_to_save:
-        logging.error(f"Task '{task_name}' not found in session for user {user_id}.")
-        return
-    remaining_tasks = [t for t in tasks if t.get("task_name") != task_name]
-    if await _save_tasks_to_db(user_id, [task_to_save]):
-        await save_session_tasks(user_id, remaining_tasks)
+    async with session_lock:
+        tasks = session_tasks.get(user_id, [])
+        session_tasks[user_id] = [
+            t for t in tasks if t.get("task_name") != task_name
+        ]
+        logging.info(f"Deleted session task '{task_name}' for user {user_id}.")
 
 async def _save_tasks_to_db(user_id: int, tasks: list) -> bool:
-    """Save tasks to the database"""
     if not tasks:
         return False
 
@@ -101,6 +104,32 @@ async def _save_tasks_to_db(user_id: int, tasks: list) -> bool:
         logging.error(f"Error saving tasks to database for user {user_id}: {e}", exc_info=True)
         return False
 
+async def save_all_session_tasks(user_id: int, tasks: list = None):
+    if tasks is not None:
+        # Nếu có truyền tasks trực tiếp, lưu luôn
+        if await _save_tasks_to_db(user_id, tasks):
+            await delete_all_session_tasks(user_id)
+    else:
+        # Nếu không truyền, thì lấy tasks từ session
+        tasks_in_session = await get_session_tasks(user_id)
+        if await _save_tasks_to_db(user_id, tasks_in_session):
+            await delete_all_session_tasks(user_id)
+
+async def save_one_session_task(user_id: int, task_name: str):
+    async with session_lock:
+        tasks = session_tasks.get(user_id, [])
+        task_to_save = next((t for t in tasks if t.get("task_name") == task_name), None)
+        if not task_to_save:
+            logging.error(f"Task '{task_name}' not found in session for user {user_id}.")
+            return
+
+        remaining_tasks = [t for t in tasks if t.get("task_name") != task_name]
+
+    # Lưu xuống DB
+    if await _save_tasks_to_db(user_id, [task_to_save]):
+        # Xóa task vừa lưu khỏi session
+        await save_session_tasks(user_id, remaining_tasks)
+
 async def extract_tasks_from_response(response: str) -> List[dict]:
     """
     Extracts JSON task objects from an AI response that contains formatted code blocks.
@@ -133,25 +162,3 @@ async def extract_tasks_from_response(response: str) -> List[dict]:
             continue
     
     return tasks
-
-async def get_calendar_plan_suggestions(prompt: str, tasks: List[dict]) -> str:
-    with open(instructions_path, 'r', encoding='utf-8') as f:
-        instructions = json.load(f)
-    
-    instruction = instructions.get('calendar_instruction', "")
-    
-    tasks_text = ""
-    for t in tasks:
-        tasks_text += (
-            f"- Task ID: {t.get('task_id')}, "
-            f"Type: {t.get('task_type', 'unknown')}, "
-            f"Description: {t.get('description', 'No description')}, "
-            f"Priority: {t.get('priority', 'medium')}, "
-            f"Estimated Time: {t.get('estimated_time', 'unknown')}, "
-        )
-    
-    contextualized_prompt = f"{instruction}\n\nUser's tasks:\n{tasks_text}\n\nUser request: {prompt}"
-    response = chat_with_gemini(contextualized_prompt, "")
-    
-    return response
-
