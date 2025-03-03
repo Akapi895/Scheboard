@@ -7,14 +7,15 @@ body {
 
 .sidebar-container {
     width: 200px;
-    height: 85vh; 
+    height: 100vh; /* Make the sidebar full height */
     background-color: #F4F4F4; 
     display: flex;
     flex-direction: column;
     padding: 20px;
-    border-radius: 30px;
-    margin-top: 50px;
-    margin-left: 10px;
+    border-radius: 0 30px 30px 0; /* Adjust border-radius */
+    position: fixed; /* Fix the sidebar to the left */
+    top: 0; /* Align to the top */
+    left: 0; /* Align to the left */
 }
 
 .sidebar ul {
