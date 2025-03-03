@@ -52,10 +52,12 @@ async def decline_one_task(request: DeclineOneTaskRequest):
     try:
         await delete_one_session_task(request.user_id, request.task_name)
         return {"status": "success", "message": f"Task '{request.task_name}' declined successfully."}
+    except ValueError as e:
+        logging.error(f"Task not found: {e}", exc_info=True)
+        raise HTTPException(status_code=404, detail=f"Task '{request.task_name}' not found")
     except Exception as e:
         logging.error(f"Error declining task '{request.task_name}' for user {request.user_id}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to decline task.")
-
 class DeclineAllTasksRequest(BaseModel):
     user_id: int
 
@@ -80,10 +82,12 @@ async def accept_one_task(request: AcceptOneTaskRequest):
     try:
         await save_one_session_task(request.user_id, request.task_name)
         return {"status": "success", "message": f"Task '{request.task_name}' accepted successfully."}
+    except ValueError as e:
+        logging.error(f"Task not found: {e}", exc_info=True)
+        raise HTTPException(status_code=404, detail=f"Task '{request.task_name}' not found")
     except Exception as e:
         logging.error(f"Error accepting task '{request.task_name}' for user {request.user_id}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to accept task.")
-
 class AcceptAllTasksRequest(BaseModel):
     user_id: int
 
