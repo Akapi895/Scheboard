@@ -56,7 +56,7 @@ async def get_sub_task_list(user_id: int, main_task_id: int) -> dict:
                 "task_name": task[1]
             })
 
-        return task_list
+        return {"tasks": task_list}
     
 async def get_subtask_details(task_id: int) -> dict:
     async with aiosqlite.connect(DATABASE) as db:
