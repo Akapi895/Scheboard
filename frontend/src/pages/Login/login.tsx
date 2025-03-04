@@ -13,7 +13,7 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
     console.log('Password:', password);
     onLogin(); // Gọi hàm onLogin khi người dùng đăng nhập
     navigate('/profile'); // Chuyển hướng đến trang Profile sau khi đăng nhập
-  };
+  }; 
 
   return (
     <div className="login-container">
