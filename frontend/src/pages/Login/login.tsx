@@ -3,21 +3,66 @@ import { Link, useNavigate } from 'react-router-dom';
 import './login.css';
 
 const Login = ({ onLogin }: { onLogin: () => void }) => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(''); 
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Email:', email);
-    console.log('Password:', password);
-    onLogin(); // Gọi hàm onLogin khi người dùng đăng nhập
-    navigate('/profile'); // Chuyển hướng đến trang Profile sau khi đăng nhập
+    
+    // Reset error state
+    setError('');
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/credentials/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password
+        }),
+      });
+      
+      // Handle API response
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Login failed');
+      }
+      
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        // Store user ID in localStorage for persistence
+        localStorage.setItem('userId', data.data.user_id);
+        localStorage.setItem('isAuthenticated', 'true');
+        
+        // Cập nhật trạng thái đăng nhập
+        onLogin();
+        
+        // Chuyển hướng đến trang dashboard
+        navigate('/dashboard');
+      } else {
+        throw new Error('Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error instanceof Error ? error.message : 'An unknown error occurred');
+    } finally {
+      setIsLoading(false);
+    }
   }; 
 
   return (
     <div className="login-container">
       <div className="login-box">
+        <h2>Login to Scheboard</h2>
+        {error && <div className="error-message">{error}</div>}
+        
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <div className="icon-box">
@@ -26,7 +71,7 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
               </svg>
             </div>
             <input
-              type="email"
+              type="text" // Changed from email to text
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -49,9 +94,17 @@ const Login = ({ onLogin }: { onLogin: () => void }) => {
               placeholder="Password"
             />
           </div>
+          
+          <button 
+            type="submit" 
+            className="login-button"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Login' : 'Login'}
+          </button>
         </form>
       </div>
-      <button type="submit">Submit</button>
+      
       <div className="register-link">
         <p>Don't you have an account? <Link to="/register">Register</Link></p>
       </div>
