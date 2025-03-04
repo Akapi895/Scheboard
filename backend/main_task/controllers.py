@@ -25,7 +25,7 @@ async def get_main_tasks(main_task_request: MainTaskRequest):
         main_task_list = await get_main_task_list(main_task_request.user_id, main_task_request.main_task_id)
         return {"status": "success", "data": main_task_list}
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) 
 
 @router.get("/api/main-tasks/subtasks", response_model=SubTaskResponse)
 async def get_subtasks(main_task_request: SubTaskRequest):

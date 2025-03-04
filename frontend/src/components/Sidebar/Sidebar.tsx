@@ -2,14 +2,45 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
-const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
+const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
   const navigate = useNavigate();
-  
-  const handleLogout = () => {
-    onLogout();
-    navigate('/login');
+
+  const handleLogout = async () => {
+    try {
+      // Gọi API để xóa session ở server
+      const response = await fetch('http://127.0.0.1:8000/api/credentials/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        console.error('Logout failed:', response.status);
+      } else {
+        console.log('Logged out successfully from server');
+      }
+
+      // Xóa dữ liệu đăng nhập ở client
+      localStorage.removeItem('userId');
+      localStorage.removeItem('isAuthenticated');
+      
+      // Gọi onLogout nếu có (để cập nhật state ở component cha)
+      if (onLogout) {
+        onLogout();
+      }
+
+      // Chuyển hướng về trang đăng nhập
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Xử lý lỗi và vẫn logout ở client side để đảm bảo người dùng có thể thoát
+      localStorage.removeItem('userId');
+      localStorage.removeItem('isAuthenticated');
+      navigate('/login');
+    }
   };
-  
+
   return (
     <div className="sidebar-container">
       <div className="sidebar">
@@ -80,7 +111,10 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
                 </Link>
             </li>
             <li>
-                <Link to= "#"> {/*TODO*/}
+                <Link to="#" onClick={(e) => {
+                  e.preventDefault(); // Ngăn chặn hành vi mặc định của thẻ Link
+                  handleLogout();    // Gọi hàm logout khi click
+                }}>
                     <span className = "icon"> 
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M2 18C1.45 18 0.979167 17.8042 0.5875 17.4125C0.195833 17.0208 0 16.55 0 16V2C0 1.45 0.195833 0.979167 0.5875 0.5875C0.979167 0.195833 1.45 0 2 0H9V2H2V16H9V18H2ZM13 14L11.625 12.55L14.175 10H6V8H14.175L11.625 5.45L13 4L18 9L13 14Z" fill="#06094D"/>
@@ -90,9 +124,9 @@ const Sidebar = ({ onLogout }: { onLogout: () => void }) => {
                 </Link>
             </li>
         </ul>
-      </div>
     </div>
-  );
+</div>
+);
 };
 
 export default Sidebar;
