@@ -5,6 +5,7 @@ import Chatbot from './pages/Chatbot/Chatbot';
 import Calendar from './pages/Calendar/Calendar';
 import Sidebar from './components/Sidebar/Sidebar';
 import Login from './pages/Login/login';
+import Register from './pages/Register/register';
 import './App.css';
 
 function App() {
@@ -37,7 +38,7 @@ function App() {
     if (isAuthenticated) {
       checkAuthStatus();
     }
-  }, []);
+  }, [isAuthenticated]);
 
   const handleLogin = () => {
     setIsAuthenticated(true);
@@ -73,7 +74,12 @@ function App() {
               path="/login" 
               element={
                 isAuthenticated ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />
-
+              }
+            />
+            <Route 
+              path="/register" 
+              element={
+                isAuthenticated ? <Navigate to="/dashboard" /> : <Register />
               }
             />
             <Route 
