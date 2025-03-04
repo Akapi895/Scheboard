@@ -204,7 +204,7 @@ const Profile = () => {
                 value={learningStyle}
                 onChange={(e) => {
                   // alert("Change event triggered!"); // Kiểm tra sự kiện có kích hoạt không
-                  console.log("Selected Learning Style:", e.target.value);
+                  // console.log("Selected Learning Style:", e.target.value);
                   setLearningStyle(e.target.value);
                 }}
               >
