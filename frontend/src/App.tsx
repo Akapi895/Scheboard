@@ -73,6 +73,7 @@ function App() {
               path="/login" 
               element={
                 isAuthenticated ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />
+
               }
             />
             <Route 

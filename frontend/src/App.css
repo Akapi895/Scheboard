@@ -43,6 +43,12 @@
   color: #888;
 }
 
+<<<<<<< Updated upstream
 .content {
     padding-left: 0px; 
 }
+=======
+/* .content {
+    padding-left: 220px; /* Add padding to the left to account for the sidebar */
+} */
+>>>>>>> Stashed changes

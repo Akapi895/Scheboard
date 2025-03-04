@@ -1,9 +1,9 @@
 import aiosqlite
 from database import DATABASE
 
-async def authenticate_user(username: str, password: str) -> str:
+async def authenticate_user(email: str, password: str) -> str:
     async with aiosqlite.connect(DATABASE) as db:
-        cursor = await db.execute("SELECT user_id FROM users WHERE username = ? AND password = ?", (username, password))
+        cursor = await db.execute("SELECT user_id FROM users WHERE email = ? AND password = ?", (email, password))
         user = await cursor.fetchone()
         await cursor.close()
         if not user:
