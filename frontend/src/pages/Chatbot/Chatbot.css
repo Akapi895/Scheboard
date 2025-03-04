@@ -71,3 +71,52 @@
 .input-area button:hover {
   background-color: #04072e;
 }
+
+/* Thêm vào file Chatbot.css */
+.message-content ul, 
+.message-content ol {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+
+.message-content p {
+  margin: 8px 0;
+}
+
+.message-content h1, 
+.message-content h2, 
+.message-content h3,
+.message-content h4,
+.message-content h5 {
+  margin: 12px 0 8px;
+}
+
+.message-content pre {
+  background-color: #f5f5f5;
+  padding: 8px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.message-content code {
+  background-color: #f5f5f5;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.message-content blockquote {
+  border-left: 4px solid #ddd;
+  padding-left: 10px;
+  color: #666;
+  margin: 8px 0;
+}
+
+/* Định dạng cho trường hợp các dấu * và _ trong Markdown */
+.message-content strong {
+  font-weight: bold;
+}
+
+.message-content em {
+  font-style: italic;
+}

@@ -6,8 +6,9 @@
 }
 
 .calendar-container {
-  width: calc(100% - 200px); /* Adjust width to exclude sidebar */
-  margin-left: 200px; /* Offset by the width of the sidebar */
+  width: 300%;
+  /* width: calc(100% - 200px); Adjust width to exclude sidebar */
+  margin-left: 20px; /* Offset by the width of the sidebar */
   max-width: none; /* Remove max-width constraint */
   margin-top: 20px;
 }
@@ -93,4 +94,14 @@
 
 .cell:hover {
   background-color: #f5f5f5;
+}
+
+.task {
+  background-color: #007bff;
+  color: white;
+  padding: 5px;
+  border-radius: 4px;
+  margin: 2px 0;
+  font-size: 12px;
+  text-align: center;
 }
