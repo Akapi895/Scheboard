@@ -1,25 +1,40 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-// import Dashboard from './pages/Dashboard/Dashboard';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Profile from './pages/Profile/Profile';
 import Chatbot from './pages/Chatbot/Chatbot';
 import Calendar from './pages/Calendar/Calendar';
-// import MainTasks from './pages/MainTasks/MainTasks';
 import Sidebar from './components/Sidebar/Sidebar';
+import Login from './pages/Login/login';
 import './App.css';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const handleLogin = () => {
+    // Logic đăng nhập thực tế sẽ ở đây
+    setIsAuthenticated(true);
+  };
+
   return (
     <Router>
       <div className="app">
-        <Sidebar />
+        {isAuthenticated && <Sidebar />}
         <div className="content">
           <Routes>
-            {/* <Route path="/dashboard" element={<Dashboard />} /> */}
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/chatbot" element={<Chatbot />} />
-            <Route path="/calendar" element={<Calendar />} />
-            {/* <Route path="/main-tasks" element={<MainTasks />} /> */}
+            <Route path="/login" element={<Login onLogin={handleLogin} />} />
+            <Route
+              path="/profile"
+              element={isAuthenticated ? <Profile /> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/chatbot"
+              element={isAuthenticated ? <Chatbot /> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/calendar"
+              element={isAuthenticated ? <Calendar /> : <Navigate to="/login" />}
+            />
+            <Route path="/" element={<Navigate to="/login" />} />
           </Routes>
         </div>
       </div>
