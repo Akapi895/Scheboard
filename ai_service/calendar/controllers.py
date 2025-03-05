@@ -105,7 +105,7 @@ class CalendarSuggestAndSaveRequest(BaseModel):
 class CalendarSuggestAndSaveResponse(BaseModel):
     status: str
     ai_response: str
-    tasks: List[AITask]
+
 
 # learning_style (from user)
 # mood (from session)
@@ -113,27 +113,24 @@ class CalendarSuggestAndSaveResponse(BaseModel):
 @router.post("/api/calendar/ai/generate", response_model=CalendarSuggestAndSaveResponse)
 async def generate_suggestions_and_save(request: CalendarSuggestAndSaveRequest):
     try:
+        # Get user context
         user_mood = await get_mood_from_session(request.user_id) 
         learning_style = await get_learning_style_from_session(request.user_id)    
-        tasks_as_dict = [t.dict() for t in request.tasks]
-
-        prompt_main = request.prompt
-        prompt_main += f"\nCurrent mood: {user_mood}"
-        prompt_main += f"\nLearning style: {learning_style}"
-        ai_response = await get_calendar_plan_suggestions(prompt_main, tasks_as_dict)
         
-        extracted_tasks = await extract_tasks_from_response(ai_response)
-        await save_session_tasks(request.user_id, extracted_tasks)
-        ai_tasks = [AITask(**task) for task in extracted_tasks]
+        # Prepare data for AI
+        tasks_as_dict = [t.dict() for t in request.tasks]
+        for task in tasks_as_dict:
+            task['user_id'] = request.user_id  # Add user_id to tasks for session storage
+        
+        # Build prompt and get AI response
+        prompt = f"{request.prompt}\nCurrent mood: {user_mood}\nLearning style: {learning_style}"
+        ai_response = await get_calendar_plan_suggestions(prompt, tasks_as_dict)
+        
         
         return CalendarSuggestAndSaveResponse(
             status="success", 
             ai_response=ai_response,
-            tasks=ai_tasks
         )
     except Exception as e:
-        logging.error(f"Error generating suggestions and saving tasks for user {request.user_id}: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, 
-            detail="Failed to generate suggestions and save tasks."
-        )
+        logging.error(f"Error generating suggestions for user {request.user_id}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to generate suggestions.")
