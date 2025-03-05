@@ -116,12 +116,15 @@ class CalendarSuggestAndSaveResponse(BaseModel):
     ai_response: str
     tasks: List[AITask]
 
+# learning_style (from user)
+# mood (from session)
+# priority (from task) ?????
 @router.post("/api/calendar/ai/generate", response_model=CalendarSuggestAndSaveResponse)
 async def generate_suggestions_and_save(request: CalendarSuggestAndSaveRequest):
     try:
         # Step 1: Generate AI suggestions
         tasks_as_dict = [t.dict() for t in request.tasks]
-        ai_response = await get_calendar_plan_suggestions(request.prompt, tasks_as_dict)
+        ai_response = await get_calendar_plan_suggestions(request.prompt, tasks_as_dict) # ls, mood
         
         # Step 2: Extract tasks from the AI response
         extracted_tasks = await extract_tasks_from_response(ai_response)

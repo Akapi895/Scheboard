@@ -203,3 +203,16 @@ async def extract_tasks_from_response(response: str) -> List[dict]:
             continue
     
     return tasks
+
+# Lay mood va learning style o day
+session_moods = {}
+
+async def get_mood_from_session(user_id: int):
+    async with session_lock:
+        return session_moods.get(user_id)
+
+session_learning_style = {}    
+
+async def get_learning_style_from_session(user_id: int):
+    async with session_lock:
+        return session_learning_style.get(user_id)
