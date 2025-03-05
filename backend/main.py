@@ -24,7 +24,6 @@ app.include_router(chatbot_router)
 app.include_router(dashboard_router)
 app.include_router(main_task_router)
 app.include_router(calendar_router, prefix="/api/calendar")
-
 app.include_router(chatbot_router_ai)
 # app.include_router(main_task_router_ai)
 app.include_router(calendar_router_ai)

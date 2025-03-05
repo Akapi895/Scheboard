@@ -4,25 +4,33 @@ from database import DATABASE
 # tested
 async def get_tasks(user_id: int) -> list[dict]:
     async with aiosqlite.connect(DATABASE) as db:
+        # Đặt row_factory để lấy kết quả dưới dạng dict thay vì tuple
+        db.row_factory = aiosqlite.Row
+        
         cursor = await db.execute("SELECT * FROM tasks WHERE user_id = ?", (user_id,))
         tasks_raw = await cursor.fetchall()
         await cursor.close()
-
+        
+        # Chuyển đổi các Row objects thành dicts
         tasks = []
         for task in tasks_raw:
-            tasks.append({
-                "task_id": task[0],
-                "task_name": task[1],
-                "description": task[2],
-                "category": task[3],
-                "priority": task[4],
-                "status": task[5],
-                "estimated_time": task[6],
-                "due_date": task[7],
-                "task_type": task[8],
-                "user_id": task[9],
-                "parent_task_id": task[10]
-            })
+            task_dict = {
+                "task_id": task["task_id"],
+                "task_name": task["task_name"],
+                "description": task["description"],
+                "category": task["category"],
+                "priority": task["priority"],
+                "status": task["status"],
+                "estimated_time": task["estimated_time"],
+                "due_date": task["due_date"],
+                "task_type": task["task_type"],
+                "user_id": task["user_id"],
+                "parent_task_id": task["parent_task_id"]
+            }
+            tasks.append(task_dict)
+            
+        print(f"Retrieved {len(tasks)} tasks for user {user_id}")
+        
         return tasks
 
 # tested

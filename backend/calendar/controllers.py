@@ -13,10 +13,9 @@ class TaskResponse(BaseModel):
     data: list[dict]
 
 #tested
-@router.post("/api/tasks", response_model=TaskResponse)
+@router.post("/tasks", response_model=TaskResponse)
 async def get_tasks_endpoint(request: TaskRequest):
     tasks = await get_tasks(request.user_id)
-    print(111)
     return {"status": "success", "data": tasks}
 
 
@@ -29,7 +28,7 @@ class TaskDetailResponse(BaseModel):
     data: Dict
 
 # tested
-@router.post("/api/tasks/detail", response_model=TaskDetailResponse)
+@router.post("/tasks/detail", response_model=TaskDetailResponse)
 async def get_task_detail_endpoint(request: TaskDetailRequest):  
     task = await get_task_detail(request.task_id)
     return {"status": "success", "data": {"task": task}} 
@@ -51,7 +50,7 @@ class TaskCreateResponse(BaseModel):
     data: Dict
 
 # tested
-@router.post("/api/tasks/create", response_model=TaskCreateResponse)
+@router.post("/tasks/create", response_model=TaskCreateResponse)
 async def create_task_endpoint(task: TaskCreateRequest):
     task_id = await create_task(task.model_dump())  # Ensure it's converted to a dict
     return {"status": "success", "data": {
@@ -81,7 +80,7 @@ class TaskUpdateResponse(BaseModel):
     data: Dict
 
 # tested
-@router.put("/api/tasks/update", response_model=TaskUpdateResponse)
+@router.put("/tasks/update", response_model=TaskUpdateResponse)
 async def update_task_endpoint(task: TaskUpdateRequest):
     await update_task(task.task_id, task.model_dump())
     return {"status": "success", "data": {
@@ -97,7 +96,7 @@ class TaskDeleteRequest(BaseModel):
     task_id: int
 
 # tested
-@router.delete("/api/tasks/delete")
+@router.delete("/tasks/delete")
 async def delete_task_endpoint(task: TaskDeleteRequest):
     await delete_task(task.task_id)
     return {"status": "success", "data": {}}
@@ -108,7 +107,7 @@ class TaskStatusUpdateRequest(BaseModel):
     status: str
 
 # tested
-@router.patch("/api/tasks/status")
+@router.patch("/tasks/status")
 async def update_task_status_endpoint(task: TaskStatusUpdateRequest):
     await update_task_status(task.task_id, task.status)
     return {"status": "success", "data": {}}
