@@ -45,19 +45,54 @@ export const createTask = async (taskData: any) => {
   }
 };
 
-export const updateTaskStatus = async (taskId: number, status: string, userId: number | null) => {
+export const updateTaskStatus = async (taskId: number, status: string, userId: number | null): Promise<boolean> => {
   try {
-    await axios.patch(`${API_BASE_URL}/status`, { task_id: taskId, status, user_id: userId });
+    if (!userId) return false;
+    
+    const response = await axios.patch(`${API_BASE_URL}/status`, { 
+      task_id: taskId, 
+      status, 
+      user_id: userId 
+    });
+    
+    return response.data.status === "success";
   } catch (error) {
     console.error("Error updating task status:", error);
+    return false;
   }
 };
 
-export const deleteTask = async (taskId: number, userId: number | null) => {
+export const deleteTask = async (taskId: number, userId: number | null): Promise<boolean> => {
   try {
-    await axios.delete(`${API_BASE_URL}/delete`, { data: { task_id: taskId, user_id: userId } });
+    if (!userId) return false;
+    
+    const response = await axios.delete(`${API_BASE_URL}/delete`, { 
+      data: { 
+        task_id: taskId, 
+        user_id: userId 
+      } 
+    });
+    
+    return response.data.status === "success";
   } catch (error) {
     console.error("Error deleting task:", error);
+    return false;
+  }
+};
+
+export const updateTask = async (task: Task, userId: number | null): Promise<boolean> => {
+  try {
+    if (!userId) return false;
+    
+    const response = await axios.put(`${API_BASE_URL}/update`, {
+      ...task,
+      user_id: userId
+    });
+    
+    return response.data.status === "success";
+  } catch (error) {
+    console.error("Error updating task:", error);
+    return false;
   }
 };
 

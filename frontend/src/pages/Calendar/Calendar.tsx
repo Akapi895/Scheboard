@@ -1,9 +1,10 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { Task } from "./types";
-import { fetchTasks, fetchTaskDetails, updateTaskStatus, deleteTask } from "./api";
+import { fetchTasks, fetchTaskDetails, updateTaskStatus, deleteTask, updateTask } from "./api";
 import TaskPopup from "./TaskPopup";
 import AddTaskPopup from "./AddTaskPopup";
+import EditTaskPopup from "./EditTaskPopup";
 import "./calendar.css";
 
 const Calendar: React.FC = () => {
@@ -16,6 +17,8 @@ const Calendar: React.FC = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTaskPopup, setShowTaskPopup] = useState(false);
   const [showAddTaskPopup, setShowAddTaskPopup] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedTask, setEditedTask] = useState<Task | null>(null);
 
   useEffect(() => {
     if (userId) fetchTasks(userId).then(setTasks);
@@ -118,31 +121,6 @@ const Calendar: React.FC = () => {
     setSelectedTimeSlot(null);
   };
 
-  // const handleTaskClick = async (task: Task) => {
-  //   try {
-  //     setLoading(true);
-  //     setError(null);
-  //     const response = await axios.post('http://127.0.0.1:8000/api/calendar/tasks/detail', {
-  //       user_id: userId,
-  //       task_id: task.task_id
-  //     });
-      
-  //     if (response.data.status === 'success') {
-  //       setTaskDetail(response.data.data);
-  //       setSelectedTask(task);
-  //       setShowTaskPopup(true);
-  //     } else {
-  //       setError("Failed to fetch task details");
-  //       console.error("Failed to fetch task details:", response.data);
-  //     }
-  //   } catch (error) {
-  //     setError("Error connecting to server");
-  //     console.error("Error fetching task details:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   // Cập nhật handleAddTask để thêm task mới
   const handleAddTask = async (taskData: any) => {
     try {
@@ -183,22 +161,18 @@ const Calendar: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      const response = await axios.patch('http://127.0.0.1:8000/api/calendar/tasks/status', {
-        task_id: taskId,
-        status: status,
-        user_id: userId
-      });
+      // Sử dụng hàm updateTaskStatus từ api.ts
+      const success = await updateTaskStatus(taskId, status, userId);
       
-      if (response.data.status === 'success') {
+      if (success) {
         await fetchTasks(userId).then(setTasks);
-        await fetchTaskDetails(userId, taskId).then(setTaskDetail);
         closeTaskPopup();
       } else {
         setError("Failed to update task status");
-        console.error("Failed to update task status:", response.data);
+        console.error("Failed to update task status");
       }
     } catch (error) {
-      setError("Error connecting to server");
+      setError("Error connecting to serverrrrrr");
       console.error("Error updating task status:", error);
     } finally {
       setLoading(false);
@@ -216,19 +190,15 @@ const Calendar: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      const response = await axios.delete('http://127.0.0.1:8000/api/calendar/tasks/delete', {
-        data: {
-          task_id: taskId,
-          user_id: userId
-        }
-      });
+      // Sử dụng hàm deleteTask từ api.ts
+      const success = await deleteTask(taskId, userId);
       
-      if (response.data.status === 'success') {
+      if (success) {
         await fetchTasks(userId).then(setTasks);
         closeTaskPopup();
       } else {
         setError("Failed to delete task");
-        console.error("Failed to delete task:", response.data);
+        console.error("Failed to delete task");
       }
     } catch (error) {
       setError("Error connecting to server");
@@ -263,178 +233,39 @@ const Calendar: React.FC = () => {
     }
   };
 
-  // Component TaskPopup để hiển thị chi tiết task
-  const TaskPopup = () => {
-    if (!showTaskPopup || !taskDetail) return null;
-    
-    return (
-      <div className="task-popup-overlay">
-        <div className="task-popup">
-          <div className="task-popup-header">
-            <h2>{selectedTask?.task_name}</h2>
-            <button className="close-btn" onClick={closeTaskPopup}>×</button>
-          </div>
-          <div className="task-popup-content">
-            {loading ? (
-              <div className="loading">Loading task details...</div>
-            ) : error ? (
-              <div className="error-message">{error}</div>
-            ) : (
-              <>
-                <div className="task-info">
-                  <p><strong>Description:</strong> {taskDetail.description}</p>
-                  <p><strong>Due Date:</strong> {new Date(taskDetail.due_date).toLocaleString()}</p>
-                  <p><strong>Category:</strong> {taskDetail.category}</p>
-                  <p><strong>Priority:</strong> {taskDetail.priority}</p>
-                  <p><strong>Status:</strong> {taskDetail.status}</p>
-                  <p><strong>Estimated Time:</strong> {taskDetail.estimated_time} minutes</p>
-                  <p><strong>Task Type:</strong> {taskDetail.task_type}</p>
-                </div>
-                <div className="task-actions">
-                  {taskDetail.status !== 'completed' && (
-                    <button onClick={() => handleUpdateStatus(taskDetail.task_id, 'completed')}>
-                      Mark as Completed
-                    </button>
-                  )}
-                  <button onClick={() => handleDeleteConfirm(taskDetail.task_id)}>
-                    Delete Task
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    );
+  const handleEditClick = (task: Task) => {
+    setEditedTask({...task});
+    setIsEditMode(true);
   };
 
-  // Component AddTaskPopup để thêm task mới
-  const AddTaskPopup = () => {
-    if (!showAddTaskPopup) return null;
-    
-    const [newTask, setNewTask] = useState({
-      task_name: '',
-      description: '',
-      category: 'work', // default value
-      priority: 'medium', // default value
-      status: 'todo', // default value
-      estimated_time: 60, // default: 60 minutes
-      task_type: 'task', // default value
-      parent_task_id: null,
-    });
-    
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-      const { name, value } = e.target;
-      setNewTask(prev => ({
-        ...prev,
-        [name]: name === 'estimated_time' ? parseInt(value) : value
-      }));
-    };
-    
-    const handleSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-      handleAddTask(newTask);
-    };
-    
-    return (
-      <div className="task-popup-overlay">
-        <div className="task-popup">
-          <div className="task-popup-header">
-            <h2>Add New Task</h2>
-            <button className="close-btn" onClick={closeAddTaskPopup}>×</button>
-          </div>
-          <div className="task-popup-content">
-            {error && <div className="error-message">{error}</div>}
-            
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="task_name">Task Name:</label>
-                <input 
-                  type="text" 
-                  id="task_name" 
-                  name="task_name" 
-                  value={newTask.task_name} 
-                  onChange={handleInputChange} 
-                  required 
-                />
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="description">Description:</label>
-                <textarea 
-                  id="description" 
-                  name="description" 
-                  value={newTask.description} 
-                  onChange={handleInputChange} 
-                ></textarea>
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="category">Category:</label>
-                <select 
-                  id="category" 
-                  name="category" 
-                  value={newTask.category} 
-                  onChange={handleInputChange}
-                >
-                  <option value="work">Work</option>
-                  <option value="study">Study</option>
-                  <option value="leisure">Leisure</option>
-                  <option value="health">Health</option>
-                  <option value="others">Others</option>
-                </select>
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="priority">Priority:</label>
-                <select 
-                  id="priority" 
-                  name="priority" 
-                  value={newTask.priority} 
-                  onChange={handleInputChange}
-                >
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                </select>
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="estimated_time">Estimated Time (minutes):</label>
-                <input 
-                  type="number" 
-                  id="estimated_time" 
-                  name="estimated_time" 
-                  value={newTask.estimated_time} 
-                  onChange={handleInputChange} 
-                  min="1"
-                />
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="task_type">Task Type:</label>
-                <select 
-                  id="task_type" 
-                  name="task_type" 
-                  value={newTask.task_type} 
-                  onChange={handleInputChange}
-                >
-                  <option value="maintask">Main Task</option>
-                  <option value="task">Task</option>
-                  <option value="subtask">Subtask</option>
-                </select>
-              </div>
-              
-              <div className="form-actions">
-                <button type="submit" className="btn-submit" disabled={loading}>
-                  {loading ? 'Creating...' : 'Create Task'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    );
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+    setEditedTask(null);
+  };
+
+  const handleSaveEdit = async (updatedTask: Task) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Sử dụng hàm updateTask từ api.ts thay vì gọi axios trực tiếp
+      const success = await updateTask(updatedTask, userId);
+      
+      if (success) {
+        await fetchTasks(userId).then(setTasks);
+        setIsEditMode(false);
+        setEditedTask(null);
+        closeTaskPopup();
+      } else {
+        setError("Failed to update task");
+        console.error("Failed to update task");
+      }
+    } catch (error) {
+      setError("Error connecting to server");
+      console.error("Error updating task:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -500,8 +331,34 @@ const Calendar: React.FC = () => {
       </div>
       
       {/* Render các popup */}
-      <TaskPopup />
-      <AddTaskPopup />
+      <TaskPopup
+        show={showTaskPopup}
+        task={selectedTask}
+        loading={loading}
+        error={error}
+        onClose={closeTaskPopup}
+        onUpdateStatus={handleUpdateStatus}
+        onDelete={handleDeleteConfirm}
+        onEdit={handleEditClick}  // Thêm prop này
+      />
+      
+      <AddTaskPopup 
+        show={showAddTaskPopup}
+        selectedTimeSlot={selectedTimeSlot}
+        loading={loading}
+        error={error}
+        onClose={closeAddTaskPopup}
+        onAddTask={handleAddTask}
+      />
+      
+      <EditTaskPopup
+        show={isEditMode}
+        task={editedTask}
+        loading={loading}
+        error={error}
+        onClose={handleCancelEdit}
+        onSave={handleSaveEdit}
+      />
     </div>
   );
 };

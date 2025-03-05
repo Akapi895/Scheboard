@@ -1,70 +1,57 @@
 import React, { useState, useEffect } from "react";
+import { Task } from "./types";
 import "./calendar.css";
 
-interface AddTaskPopupProps {
+interface EditTaskPopupProps {
   show: boolean;
-  selectedTimeSlot: {date: Date, hour: number} | null;
-  loading?: boolean;
-  error?: string | null;
+  task: Task | null;
+  loading: boolean;
+  error: string | null;
   onClose: () => void;
-  onAddTask: (taskData: any) => Promise<void>;
+  onSave: (task: Task) => void;
 }
 
-const AddTaskPopup: React.FC<AddTaskPopupProps> = ({ 
-  show, 
-  selectedTimeSlot, 
-  loading = false, 
-  error = null, 
-  onClose, 
-  onAddTask 
+const EditTaskPopup: React.FC<EditTaskPopupProps> = ({
+  show,
+  task,
+  loading,
+  error,
+  onClose,
+  onSave
 }) => {
-  const [newTask, setNewTask] = useState({
-    task_name: '',
-    description: '',
-    category: 'work',
-    priority: 'medium',
-    status: 'todo',
-    estimated_time: 60,
-    task_type: 'task', // Mặc định là 'task', không hiển thị cho người dùng
-    parent_task_id: null,
-  });
-  
-  // Reset form khi mở popup mới
+  const [editedTask, setEditedTask] = useState<Task | null>(null);
+
   useEffect(() => {
-    if (show) {
-      setNewTask({
-        task_name: '',
-        description: '',
-        category: 'work',
-        priority: 'medium',
-        status: 'todo',
-        estimated_time: 60,
-        task_type: 'task',
-        parent_task_id: null,
-      });
+    if (task) {
+      setEditedTask({ ...task });
     }
-  }, [show]);
-  
+  }, [task]);
+
+  if (!show || !editedTask) return null;
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setNewTask(prev => ({
-      ...prev,
-      [name]: name === 'estimated_time' ? parseInt(value) : value
-    }));
+    setEditedTask(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        [name]: name === 'estimated_time' ? parseInt(value) : value
+      };
+    });
   };
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAddTask(newTask);
+    if (editedTask) {
+      onSave(editedTask);
+    }
   };
-  
-  if (!show) return null;
-  
+
   return (
     <div className="task-popup-overlay">
       <div className="task-popup">
         <div className="task-popup-header">
-          <h2>Add New Task</h2>
+          <h2>Edit Task</h2>
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
         <div className="task-popup-content">
@@ -77,7 +64,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({
                 type="text" 
                 id="task_name" 
                 name="task_name" 
-                value={newTask.task_name} 
+                value={editedTask.task_name} 
                 onChange={handleInputChange} 
                 required 
               />
@@ -88,7 +75,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({
               <textarea 
                 id="description" 
                 name="description" 
-                value={newTask.description} 
+                value={editedTask.description} 
                 onChange={handleInputChange} 
               ></textarea>
             </div>
@@ -98,7 +85,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({
               <select 
                 id="category" 
                 name="category" 
-                value={newTask.category} 
+                value={editedTask.category} 
                 onChange={handleInputChange}
               >
                 <option value="work">Work</option>
@@ -114,7 +101,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({
               <select 
                 id="priority" 
                 name="priority" 
-                value={newTask.priority} 
+                value={editedTask.priority} 
                 onChange={handleInputChange}
               >
                 <option value="high">High</option>
@@ -124,29 +111,48 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({
             </div>
             
             <div className="form-group">
+              <label htmlFor="status">Status:</label>
+              <select 
+                id="status" 
+                name="status" 
+                value={editedTask.status} 
+                onChange={handleInputChange}
+              >
+                <option value="todo">To Do</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            
+            <div className="form-group">
               <label htmlFor="estimated_time">Estimated Time (minutes):</label>
               <input 
                 type="number" 
                 id="estimated_time" 
                 name="estimated_time" 
-                value={newTask.estimated_time} 
+                value={editedTask.estimated_time} 
                 onChange={handleInputChange} 
                 min="1"
               />
             </div>
             
-            {selectedTimeSlot && (
-              <div className="form-group">
-                <label>Selected Time:</label>
-                <div className="selected-timeslot">
-                  {selectedTimeSlot.date.toLocaleDateString()} at {selectedTimeSlot.hour}:00
-                </div>
-              </div>
-            )}
+            <div className="form-group">
+              <label htmlFor="due_date">Due Date:</label>
+              <input 
+                type="datetime-local" 
+                id="due_date" 
+                name="due_date" 
+                value={editedTask.due_date.replace(' ', 'T').substring(0, 16)} 
+                onChange={handleInputChange} 
+              />
+            </div>
             
             <div className="form-actions">
+              <button type="button" className="btn-cancel" onClick={onClose}>
+                Cancel
+              </button>
               <button type="submit" className="btn-submit" disabled={loading}>
-                {loading ? 'Creating...' : 'Create Task'}
+                {loading ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </form>
@@ -156,4 +162,4 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({
   );
 };
 
-export default AddTaskPopup;
+export default EditTaskPopup;

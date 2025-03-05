@@ -75,7 +75,7 @@ async def create_task(task: dict) -> int:
                 task["status"],
                 task["estimated_time"],
                 task["due_date"],
-                task["task_type"],
+                "subtask", #task["task_type"]
                 task["user_id"],
                 task.get("parent_task_id")
             )

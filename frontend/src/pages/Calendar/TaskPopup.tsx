@@ -5,13 +5,58 @@ import "./calendar.css";
 interface TaskPopupProps {
   show: boolean;
   task: Task | null;
+  loading: boolean;
+  error: string | null;
   onClose: () => void;
   onUpdateStatus: (taskId: number, status: string) => void;
   onDelete: (taskId: number) => void;
+  onEdit: (task: Task) => void; // Thêm prop onEdit
 }
 
-const TaskPopup: React.FC<TaskPopupProps> = ({ show, task, onClose, onUpdateStatus, onDelete }) => {
+const TaskPopup: React.FC<TaskPopupProps> = ({ 
+    show, 
+    task, 
+    loading, 
+    error, 
+    onClose, 
+    onUpdateStatus, 
+    onDelete,
+    onEdit 
+  }) => {
   if (!show || !task) return null;
+
+  if (loading) {
+    return (
+      <div className="task-popup-overlay">
+        <div className="task-popup">
+          <div className="task-popup-header">
+            <h2>Loading task details...</h2>
+            <button className="close-btn" onClick={onClose}>×</button>
+          </div>
+          <div className="task-popup-content">
+            <div className="loading-spinner">Loading...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error message if there was an error
+  if (error) {
+    return (
+      <div className="task-popup-overlay">
+        <div className="task-popup">
+          <div className="task-popup-header">
+            <h2>Error</h2>
+            <button className="close-btn" onClick={onClose}>×</button>
+          </div>
+          <div className="task-popup-content">
+            <p className="error-message">{error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="task-popup-overlay">
@@ -29,9 +74,25 @@ const TaskPopup: React.FC<TaskPopupProps> = ({ show, task, onClose, onUpdateStat
           <p><strong>Estimated Time:</strong> {task.estimated_time} minutes</p>
           <div className="task-actions">
             {task.status !== "completed" && (
-              <button onClick={() => onUpdateStatus(task.task_id, "completed")}>Mark as Completed</button>
+              <button 
+                className="complete-btn" 
+                onClick={() => onUpdateStatus(task.task_id, "completed")}
+              >
+                Mark as Completed
+              </button>
             )}
-            <button onClick={() => onDelete(task.task_id)}>Delete Task</button>
+            <button
+              className="edit-btn"
+              onClick={() => onEdit(task)}
+            >
+              Edit Task
+            </button>
+            <button 
+              className="delete-btn"
+              onClick={() => onDelete(task.task_id)}
+            >
+              Delete Task
+            </button>
           </div>
         </div>
       </div>
