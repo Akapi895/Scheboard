@@ -1,9 +1,71 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
+// Định nghĩa interface cho main task
+interface MainTask {
+  main_task_id: number;
+  name: string;
+  // Các thuộc tính khác nếu cần
+}
+
 const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
   const navigate = useNavigate();
+  
+  // Lấy userId từ localStorage
+  const [userId, setUserId] = useState<number | null>(() => {
+    const storedUserId = localStorage.getItem('userId');
+    return storedUserId ? parseInt(storedUserId, 10) : null;
+  });
+
+  const [mainTasks, setMainTasks] = useState<MainTask[]>([]);
+  const [showMainTasks, setShowMainTasks] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Thêm useEffect để gọi API lấy main tasks khi component được mount hoặc userId thay đổi
+  useEffect(() => {
+    if (userId) {
+      fetchMainTasks();
+    }
+  }, [userId]);
+
+  // Hàm gọi API để lấy danh sách main tasks
+  const fetchMainTasks = async () => {
+    if (!userId) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/main-tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: userId
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error fetching main tasks: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        setMainTasks(data.data);
+      } else {
+        throw new Error('Failed to fetch main tasks');
+      }
+    } catch (error) {
+      console.error('Error fetching main tasks:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Hàm toggle hiển thị/ẩn danh sách main tasks
+  const toggleMainTasks = () => {
+    setShowMainTasks(!showMainTasks);
+  };
 
   const handleLogout = async () => {
     try {
@@ -86,12 +148,37 @@ const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
             </Link>
           </li>
           <li className="main-task">
+          <div className="main-task-header" onClick={toggleMainTasks}>
             <hr />
             <span>MAIN TASKS</span>
             <hr />
-          </li>
+          </div>
+
+          {/* Danh sách main tasks xuất hiện bên dưới */}
+          {showMainTasks && (
+            <div className="main-tasks-list">
+              {loading ? (
+                <div className="loading">Loading...</div>
+              ) : mainTasks && mainTasks.length > 0 ? (
+                mainTasks.map((task) => (
+                  <Link 
+                    key={task.main_task_id} 
+                    to={`/tasks/${task.main_task_id}`}
+                    className="main-task-item"
+                  >
+                    <span className="task-name">{task.name}</span>
+                  </Link>
+                ))
+              ) : (
+                <div className="no-tasks">No main tasks found</div>
+              )}
+            </div>
+          )}
+        </li>
+
+
           <li>
-            <Link to="/profile">
+          <Link to="/profile">
               <span className="icon">
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9 9C7.7625 9 6.70313 8.55938 5.82188 7.67813C4.94063 6.79688 4.5 5.7375 4.5 4.5C4.5 3.2625 4.94063 2.20313 5.82188 1.32188C6.70313 0.440625 7.7625 0 9 0C10.2375 0 11.2969 0.440625 12.1781 1.32188C13.0594 2.20313 13.5 3.2625 13.5 4.5C13.5 5.7375 13.0594 6.79688 12.1781 7.67813C11.2969 8.55938 10.2375 9 9 9ZM0 18V14.85C0 14.2125 0.164062 13.6266 0.492188 13.0922C0.820313 12.5578 1.25625 12.15 1.8 11.8688C2.9625 11.2875 4.14375 10.8516 5.34375 10.5609C6.54375 10.2703 7.7625 10.125 9 10.125C10.2375 10.125 11.4562 10.2703 12.6562 10.5609C13.8563 10.8516 15.0375 11.2875 16.2 11.8688C16.7438 12.15 17.1797 12.5578 17.5078 13.0922C17.8359 13.6266 18 14.2125 18 14.85V18H0ZM2.25 15.75H15.75V14.85C15.75 14.6437 15.6984 14.4562 15.5953 14.2875C15.4922 14.1187 15.3563 13.9875 15.1875 13.8938C14.175 13.3875 13.1531 13.0078 12.1219 12.7547C11.0906 12.5016 10.05 12.375 9 12.375C7.95 12.375 6.90937 12.5016 5.87812 12.7547C4.84687 13.0078 3.825 13.3875 2.8125 13.8938C2.64375 13.9875 2.50781 14.1187 2.40469 14.2875C2.30156 14.4562 2.25 14.6437 2.25 14.85V15.75ZM9 6.75C9.61875 6.75 10.1484 6.52969 10.5891 6.08906C11.0297 5.64844 11.25 5.11875 11.25 4.5C11.25 3.88125 11.0297 3.35156 10.5891 2.91094C10.1484 2.47031 9.61875 2.25 9 2.25C8.38125 2.25 7.85156 2.47031 7.41094 2.91094C6.97031 3.35156 6.75 3.88125 6.75 4.5C6.75 5.11875 6.97031 5.64844 7.41094 6.08906C7.85156 6.52969 8.38125 6.75 9 6.75Z" fill="#06094D"/>
@@ -111,10 +198,7 @@ const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
                 </Link>
             </li>
             <li>
-                <Link to="#" onClick={(e) => {
-                  e.preventDefault(); // Ngăn chặn hành vi mặc định của thẻ Link
-                  handleLogout();    // Gọi hàm logout khi click
-                }}>
+                <Link to= "#"> {/*TODO*/}
                     <span className = "icon"> 
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M2 18C1.45 18 0.979167 17.8042 0.5875 17.4125C0.195833 17.0208 0 16.55 0 16V2C0 1.45 0.195833 0.979167 0.5875 0.5875C0.979167 0.195833 1.45 0 2 0H9V2H2V16H9V18H2ZM13 14L11.625 12.55L14.175 10H6V8H14.175L11.625 5.45L13 4L18 9L13 14Z" fill="#06094D"/>
@@ -124,9 +208,9 @@ const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
                 </Link>
             </li>
         </ul>
+      </div>
     </div>
-</div>
-);
+  );
 };
 
 export default Sidebar;

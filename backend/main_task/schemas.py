@@ -1,6 +1,14 @@
 from pydantic import BaseModel
 from typing import List, Dict
 
+class MainTasks(BaseModel):
+    user_id: int
+
+class MainTaskList(BaseModel):
+    status: str
+    data: list[str]
+
+
 class MainTaskRequest(BaseModel):
     user_id: int
     main_task_id: int

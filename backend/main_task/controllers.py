@@ -4,7 +4,7 @@ from typing import List, Dict, Optional
 from .services import get_main_task_list, get_sub_task_list, get_subtask_details
 from .services import create_sub_task, user_update_task, user_delete_subtask
 from .services import update_subtask_status, delete_task_resource
-from .services import get_task_resources, upload_task_resources
+from .services import get_task_resources, upload_task_resources, get_main_tasks_name
 from .schemas import MainTaskRequest, MainTaskResponse
 from .schemas import SubTaskRequest, SubTaskResponse
 from .schemas import SubTaskDetailRequest, SubTaskDetailResponse
@@ -15,11 +15,20 @@ from .schemas import StatusUpdateRequest, StatusUpdateResponse
 from .schemas import DeleteResourceRequest, DeleteResourceResponse
 from .schemas import ResourceRequest, ResourceResponse
 from .schemas import UploadResourceRequest, UploadResourceResponse
+from .schemas import MainTasks, MainTaskList
 
 router = APIRouter()
 
 # Task
-@router.get("/api/main-tasks", response_model=MainTaskResponse)
+@router.post("/api/main-tasks", response_model=MainTaskList)
+async def get_user_main_tasks(main_task_request: MainTasks):
+    try:
+        main_tasks = await get_main_tasks_name(main_task_request.user_id)
+        return {"status": "success", "data": main_tasks}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/api/main-tasks/tasks", response_model=MainTaskResponse)
 async def get_main_tasks(main_task_request: MainTaskRequest):
     try:
         main_task_list = await get_main_task_list(main_task_request.user_id, main_task_request.main_task_id)
