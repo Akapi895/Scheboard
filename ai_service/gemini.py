@@ -2,21 +2,22 @@ import requests
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
 
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), '.env'))
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    print("API key chưa được cài đặt. Vui lòng cấu hình file .env.")
+    exit(1)
 
 def chat_with_gemini(question: str, instruction: str) -> str:
-    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
     headers = {"Content-Type": "application/json"}
     payload = {
         "contents": [
-            {
-                "parts": [
-                    {"text": instruction},
-                    {"text": question}
-                ]
-            }
+            {"parts": [
+                {"text": instruction},
+                {"text": question}
+            ]}
         ]
     }
     

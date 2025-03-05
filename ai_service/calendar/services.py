@@ -8,7 +8,7 @@ import json
 from typing import List, Optional
 from dotenv import load_dotenv
 from backend.database import DATABASE
-from ai_service.calendar.chatbot import chat_with_gemini
+from ai_service.gemini import chat_with_gemini
 
 load_dotenv()
 
