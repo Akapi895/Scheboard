@@ -35,6 +35,10 @@ async def delete_one_session_resource(user_id: int, resource_title: str):
         session_resources[user_id] = filtered_resources
         logging.info(f"Deleted session resource '{resource_title}' for user {user_id}.")
 
+async def delete_session_resources(user_id: int) -> bool:
+    """Alias for delete_all_session_resources for backwards compatibility."""
+    return await delete_all_session_resources(user_id)
+
 async def _save_resources_to_db(task_id: int, resources: list) -> bool:
     if not resources:
         return False
@@ -110,12 +114,27 @@ async def save_all_session_resources(user_id: int, task_id: int):
 from typing import List, Dict, Any
 from ai_service.chatbot.services import get_chat_response
 
-async def generate_and_save_resource_suggestions(user_id: int, task_id: int, task_details: Dict[str, Any]):
+async def generate_and_save_resource_suggestions(user_id: int, task_id: int):
     try:
+        # Get task details from database
+        async with aiosqlite.connect(DATABASE) as db:
+            cursor = await db.execute('''
+                SELECT task_name, description
+                FROM tasks
+                WHERE task_id = ?
+            ''', (task_id,))
+            task = await cursor.fetchone()
+            
+            if not task:
+                raise ValueError(f"Task with ID {task_id} not found")
+            
+            task_name, description = task
+        
+        # Create prompt with fetched task details
         prompt = (
             f"Vui lòng đề xuất 5 nguồn học tập chất lượng cao cho task sau:\n"
-            f"Task: {task_details.get('title', 'Unknown task')}\n"
-            f"Description: {task_details.get('description', 'No description provided')}\n\n"
+            f"Task: {task_name}\n"
+            f"Description: {description or 'No description provided'}\n\n"
             f"Đối với mỗi nguồn tài nguyên, hãy cung cấp thông tin sau theo đúng định dạng này:\n"
             f"Type: [video/article/book/course/tutorial]\n"
             f"Title: [descriptive title]\n"
