@@ -1,13 +1,54 @@
 import aiosqlite
 from database import DATABASE
+import asyncio
+from typing import Dict, Optional
+
+session_users = {}
+user_session_lock = asyncio.Lock()
+
+async def save_user_session(user_id: int, user_data: dict):
+    async with user_session_lock:
+        session_users[user_id] = user_data
+
+async def get_user_session(user_id: int) -> Optional[dict]:
+    async with user_session_lock:
+        return session_users.get(user_id)
+
+async def delete_user_session(user_id: int) -> bool:
+    async with user_session_lock:
+        if user_id in session_users:
+            del session_users[user_id]
+            return True
+        return False
 
 async def authenticate_user(email: str, password: str) -> str:
     async with aiosqlite.connect(DATABASE) as db:
         cursor = await db.execute("SELECT user_id FROM users WHERE email = ? AND password = ?", (email, password))
+        cursor = await db.execute(
+            """SELECT user_id, username, email, learning_style, 
+            completion_percentage, about_me, ava_url, password 
+            FROM users WHERE username = ? AND password = ?""", 
+            (username, password)
+        )
         user = await cursor.fetchone()
         await cursor.close()
+        
         if not user:
             return None
+            
+        user_data = {
+            "user_id": user[0],
+            "username": user[1],
+            "email": user[2],
+            "learning_style": user[3],
+            "completion_percentage": user[4],
+            "about_me": user[5],
+            "ava_url": user[6]
+        }
+        
+        await save_user_session(user[0], user_data)
+        
+        # Return user ID for backward compatibility
         return user[0]
 
 async def register_user(username: str, password: str, email: str) -> str:
