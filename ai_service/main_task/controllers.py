@@ -83,7 +83,7 @@ async def accept_resources(request: ResourceRequest):
         logging.error(f"Failed to accept resources: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to accept resources: {str(e)}")
 
-@router.post("/api/main-tasks/resources/decline", response_model=StatusResponse)
+@router.delete("/api/main-tasks/resources/decline", response_model=StatusResponse)
 async def decline_resources(request: ResourceRequest):
     try:
         result = await delete_session_resources(request.user_id)
