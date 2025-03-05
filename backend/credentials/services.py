@@ -58,7 +58,7 @@ async def register_user(username: str, password: str, email: str) -> str:
                 user_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT NOT NULL,
                 email TEXT NOT NULL UNIQUE,
-                learning_style TEXT,
+                learning_style TEXT DEFAULT 'spaced repetition',
                 completion_percentage REAL DEFAULT 0,
                 password TEXT NOT NULL,
                 about_me TEXT,
@@ -73,7 +73,11 @@ async def register_user(username: str, password: str, email: str) -> str:
             await cursor.close()
             return None
         
-        await db.execute("INSERT INTO users (username, password, email) VALUES (?, ?, ?)", (username, password, email))
+        # Add learning_style field with default value in the INSERT statement
+        await db.execute(
+            "INSERT INTO users (username, password, email, learning_style) VALUES (?, ?, ?, ?)", 
+            (username, password, email, "spaced repetition")
+        )
         await db.commit()
         
         cursor = await db.execute("SELECT user_id FROM users WHERE username = ?", (username,))
