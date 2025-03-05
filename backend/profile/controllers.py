@@ -12,15 +12,14 @@ class ProfileResponse(BaseModel):
 
 class ProfileRequest(BaseModel):
     user_id: int
-
+ 
 @router.get("/api/profile", response_model=ProfileResponse)
-async def get_profile(profile_request: ProfileRequest):
+async def get_profile(user_id: int):
     try:
-        profile_data = await get_user_profile(profile_request.user_id)
+        profile_data = await get_user_profile(user_id)
         return {"status": "success", "data": profile_data}
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
-    
 
 @router.put("/api/profile/update", response_model=ProfileResponse)
 async def update_profile(update_request: UpdateProfileRequest):

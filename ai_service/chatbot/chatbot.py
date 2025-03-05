@@ -36,3 +36,4 @@ def chat_with_gemini(question: str, instruction: str) -> str:
         except Exception:
             error_message = response.text
         return f"Failed to get response. Status Code: {response.status_code}. Error: {error_message}"
+    

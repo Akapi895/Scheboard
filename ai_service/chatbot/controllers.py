@@ -26,4 +26,4 @@ async def get_user_chat_history(user_id: int):
     history = get_chat_history(user_id)
     if history is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return {"user_id": user_id, "history": history}
+    return {"user_id": user_id, "history": history if history is not None else []}

@@ -21,8 +21,9 @@ async def delete_user_session(user_id: int) -> bool:
             return True
         return False
 
-async def authenticate_user(username: str, password: str) -> str:
+async def authenticate_user(email: str, password: str) -> str:
     async with aiosqlite.connect(DATABASE) as db:
+        cursor = await db.execute("SELECT user_id FROM users WHERE email = ? AND password = ?", (email, password))
         cursor = await db.execute(
             """SELECT user_id, username, email, learning_style, 
             completion_percentage, about_me, ava_url, password 

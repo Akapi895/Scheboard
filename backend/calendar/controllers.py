@@ -10,13 +10,13 @@ class TaskRequest(BaseModel):
 
 class TaskResponse(BaseModel):
     status: str
-    data: Dict
+    data: list[dict]
 
 #tested
-@router.get("/tasks", response_model=TaskResponse)
+@router.post("/tasks", response_model=TaskResponse)
 async def get_tasks_endpoint(request: TaskRequest):
     tasks = await get_tasks(request.user_id)
-    return {"status": "success", "data": {"tasks": tasks}}
+    return {"status": "success", "data": tasks}
 
 
 class TaskDetailRequest(BaseModel):
@@ -28,7 +28,7 @@ class TaskDetailResponse(BaseModel):
     data: Dict
 
 # tested
-@router.get("/tasks/detail", response_model=TaskDetailResponse)
+@router.post("/tasks/detail", response_model=TaskDetailResponse)
 async def get_task_detail_endpoint(request: TaskDetailRequest):  
     task = await get_task_detail(request.task_id)
     return {"status": "success", "data": {"task": task}} 
