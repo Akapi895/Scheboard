@@ -42,7 +42,10 @@ async def get_calendar_plan_suggestions(prompt: str, tasks: List[dict]) -> str:
 
     with open(instructions_path, 'r', encoding='utf-8') as f:
         instructions = json.load(f)
-    instruction = instructions.get('instruction_2')
+    instruction_a = instructions.get('instruction_2')
+    instruction_b = instructions.get('instruction_3')
+
+    instruction = instruction_a + instruction_b
 
     response = chat_with_gemini(combined_text, instruction)
     return response
