@@ -12,7 +12,7 @@ const Calendar: React.FC = () => {
   const startOfWeek = (date: Date) => {
     const start = new Date(date);
     const day = start.getDay();
-    const diff = start.getDate() - day + (day === 0 ? -6 : 1); 
+    const diff = start.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
     return new Date(start.setDate(diff));
   };
 
@@ -39,7 +39,7 @@ const Calendar: React.FC = () => {
     setCurrentDate(nextWeek);
   };
 
-  const fetchTasks = async () => { //chưa có api cho weekly-tasks
+  const fetchTasks = async () => {
     try {
       const response = await axios.get(`/api/profile/weekly-tasks?user_id=1`);
       setTasks(response.data.data);
@@ -117,13 +117,13 @@ const Calendar: React.FC = () => {
             <div className="time-slot">{hour}</div>
             {days.map((_, dayIdx) => (
               <div key={`${dayIdx}-${hourIdx}`} className="cell">
-                {/* {tasks
+                {tasks
                   .filter(task => new Date(task.due_date).getDay() === dayIdx)
                   .map(task => (
                     <div key={task.task_name} className="task" onClick={() => handleTaskClick(task)}>
                       {task.task_name}
                     </div>
-                  ))} */}
+                  ))}
               </div>
             ))}
           </React.Fragment>

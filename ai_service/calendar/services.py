@@ -55,16 +55,22 @@ async def save_session_tasks(user_id: int, tasks: list):
     async with session_lock:
         session_tasks[user_id] = tasks
 
-async def delete_all_session_tasks(user_id: int):
+async def delete_all_session_tasks(user_id: int) -> bool:
     async with session_lock:
+        had_tasks = user_id in session_tasks
         session_tasks.pop(user_id, None)
+        return had_tasks
 
 async def delete_one_session_task(user_id: int, task_name: str):
     async with session_lock:
         tasks = session_tasks.get(user_id, [])
-        session_tasks[user_id] = [
-            t for t in tasks if t.get("task_name") != task_name
-        ]
+        original_length = len(tasks)
+        filtered_tasks = [t for t in tasks if t.get("task_name") != task_name]
+        
+        if len(filtered_tasks) == original_length:
+            raise ValueError(f"Task '{task_name}' not found for user {user_id}")
+            
+        session_tasks[user_id] = filtered_tasks
         logging.info(f"Deleted session task '{task_name}' for user {user_id}.")
 
 async def _save_tasks_to_db(user_id: int, tasks: list) -> bool:
@@ -104,24 +110,56 @@ async def _save_tasks_to_db(user_id: int, tasks: list) -> bool:
         logging.error(f"Error saving tasks to database for user {user_id}: {e}", exc_info=True)
         return False
 
-async def save_all_session_tasks(user_id: int, tasks: list = None):
-    if tasks is not None:
-        # Nếu có truyền tasks trực tiếp, lưu luôn
-        if await _save_tasks_to_db(user_id, tasks):
-            await delete_all_session_tasks(user_id)
-    else:
-        # Nếu không truyền, thì lấy tasks từ session
+async def save_all_session_tasks(user_id: int):
+    try:
+        # Get tasks from session
         tasks_in_session = await get_session_tasks(user_id)
+        
+        if not tasks_in_session:
+            logging.info(f"No tasks in session for user {user_id}")
+            return {
+                "success": False,
+                "message": "No tasks found in session",
+                "count": 0
+            }
+            
+        # Save to database
         if await _save_tasks_to_db(user_id, tasks_in_session):
+            # Clear session after successful save
             await delete_all_session_tasks(user_id)
+            task_count = len(tasks_in_session)
+            logging.info(f"Successfully saved {task_count} tasks for user {user_id}")
+            return {
+                "success": True,
+                "message": f"Successfully saved {task_count} tasks",
+                "count": task_count
+            }
+        else:
+            logging.error(f"Failed to save session tasks for user {user_id}")
+            return {
+                "success": False,
+                "message": "Database error while saving tasks",
+                "count": 0
+            }
+            
+    except Exception as e:
+        error_msg = str(e)
+        logging.error(f"Error in save_all_session_tasks for user {user_id}: {error_msg}", exc_info=True)
+        return {
+            "success": False,
+            "message": f"Unexpected error: {error_msg}",
+            "count": 0
+        }
 
 async def save_one_session_task(user_id: int, task_name: str):
     async with session_lock:
         tasks = session_tasks.get(user_id, [])
         task_to_save = next((t for t in tasks if t.get("task_name") == task_name), None)
         if not task_to_save:
-            logging.error(f"Task '{task_name}' not found in session for user {user_id}.")
-            return
+            error_msg = f"Task '{task_name}' not found in session for user {user_id}."
+            logging.error(error_msg)
+
+            raise ValueError(error_msg)
 
         remaining_tasks = [t for t in tasks if t.get("task_name") != task_name]
 
@@ -129,6 +167,9 @@ async def save_one_session_task(user_id: int, task_name: str):
     if await _save_tasks_to_db(user_id, [task_to_save]):
         # Xóa task vừa lưu khỏi session
         await save_session_tasks(user_id, remaining_tasks)
+        return True
+    else:
+        raise ValueError(f"Failed to save task '{task_name}' to database")
 
 async def extract_tasks_from_response(response: str) -> List[dict]:
     """

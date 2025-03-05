@@ -2,11 +2,27 @@ import aiosqlite
 from database import DATABASE
 
 # tested
-async def get_tasks(user_id: int) -> list:
+async def get_tasks(user_id: int) -> list[dict]:
     async with aiosqlite.connect(DATABASE) as db:
         cursor = await db.execute("SELECT * FROM tasks WHERE user_id = ?", (user_id,))
-        tasks = await cursor.fetchall()
+        tasks_raw = await cursor.fetchall()
         await cursor.close()
+
+        tasks = []
+        for task in tasks_raw:
+            tasks.append({
+                "task_id": task[0],
+                "task_name": task[1],
+                "description": task[2],
+                "category": task[3],
+                "priority": task[4],
+                "status": task[5],
+                "estimated_time": task[6],
+                "due_date": task[7],
+                "task_type": task[8],
+                "user_id": task[9],
+                "parent_task_id": task[10]
+            })
         return tasks
 
 # tested
