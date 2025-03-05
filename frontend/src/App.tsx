@@ -6,17 +6,15 @@ import Calendar from './pages/Calendar/Calendar';
 import Sidebar from './components/Sidebar/Sidebar';
 import Login from './pages/Login/login';
 import Register from './pages/Register/register';
+import Dashboard from './pages/Dashboard/Dashboard';
 import './App.css';
 
 function App() {
-  // Kiểm tra localStorage khi khởi tạo component để duy trì phiên đăng nhập
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem('isAuthenticated') === 'true';
   });
 
-  // Kiểm tra trạng thái xác thực khi component mount
   useEffect(() => {
-    // Kiểm tra với backend xem token còn hiệu lực không
     const checkAuthStatus = async () => {
       try {
         const response = await fetch('http://127.0.0.1:8000/api/user_id', {
@@ -27,7 +25,6 @@ function App() {
         });
         
         if (!response.ok) {
-          // Session đã hết hạn, đăng xuất
           handleLogout();
         }
       } catch (error) {
@@ -47,7 +44,6 @@ function App() {
 
   const handleLogout = async () => {
     try {
-      // Gọi API logout để xóa session phía server
       await fetch('http://127.0.0.1:8000/api/credentials/logout', {
         method: 'POST',
         headers: {
@@ -57,7 +53,6 @@ function App() {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      // Xóa dữ liệu lưu trữ cục bộ
       setIsAuthenticated(false);
       localStorage.removeItem('isAuthenticated');
       localStorage.removeItem('userId');
@@ -80,6 +75,12 @@ function App() {
               path="/register" 
               element={
                 isAuthenticated ? <Navigate to="/dashboard" /> : <Register />
+              }
+            />
+            <Route 
+              path="/dashboard" 
+              element={
+                isAuthenticated ? <Dashboard /> : <Navigate to="/login" />
               }
             />
             <Route 
