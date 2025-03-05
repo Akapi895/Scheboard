@@ -38,12 +38,36 @@ async def get_user_profile(user_id: int) -> dict:
     return response_data
 
 async def update_user_profile(update_request: UpdateProfileRequest) -> dict:
+    query_parts = []
+    params = []
+    
+    # Thêm các trường cần cập nhật vào câu lệnh SQL
+    if update_request.ava_url is not None:
+        query_parts.append("ava_url = ?")
+        params.append(update_request.ava_url)
+    
+    if update_request.about_me is not None:
+        query_parts.append("about_me = ?")
+        params.append(update_request.about_me)
+    
+    if update_request.learning_style is not None:
+        query_parts.append("learning_style = ?")
+        params.append(update_request.learning_style)
+    
+    if update_request.password is not None and update_request.password != "":
+        query_parts.append("password = ?")
+        params.append(update_request.password)
+    
+    if not query_parts:
+        # Không có gì để cập nhật
+        return await get_user_profile(update_request.user_id)
+    
+    # Tạo câu lệnh SQL động
+    query = f"UPDATE users SET {', '.join(query_parts)} WHERE user_id = ?"
+    params.append(update_request.user_id)
+    
     async with aiosqlite.connect(DATABASE) as db:
-        await db.execute('''
-            UPDATE users
-            SET password = ?, ava_url = ?, about_me = ?, learning_style = ?
-            WHERE user_id = ?
-        ''', (update_request.password, update_request.ava_url, update_request.about_me, update_request.learning_style, update_request.user_id))
+        await db.execute(query, params)
         await db.commit()
-
+        
         return await get_user_profile(update_request.user_id)

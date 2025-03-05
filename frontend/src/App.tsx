@@ -96,8 +96,12 @@ function App() {
               element={isAuthenticated ? <Calendar /> : <Navigate to="/login" />}
             />
             <Route 
+              path="/dashboard" 
+              element={isAuthenticated ? <Calendar /> : <Navigate to="/login" />}
+            />
+            <Route 
               path="/" 
-              element={<Navigate to={isAuthenticated ? "/profile" : "/login"} />}
+              element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />}
             />
           </Routes>
         </div>
