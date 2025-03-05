@@ -142,7 +142,7 @@ body {
 }
 
 .main-tasks-list {
-    /* display: block; */
+   display: block;
     width: 100%;
 }
 
