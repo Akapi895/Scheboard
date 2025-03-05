@@ -33,17 +33,6 @@ class CalendarAIRequest(BaseModel):
     prompt: str
     tasks: List[AITask]
 
-@router.post("/api/calendar/ai/generate_suggestions")
-async def generate_calendar_plan(request: CalendarAIRequest):
-    try:
-        tasks_as_dict = [t.dict() for t in request.tasks]
-        result = await get_calendar_plan_suggestions(request.prompt, tasks_as_dict)
-        return {
-            "status": "success",
-            "data": result
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 class DeclineOneTaskRequest(BaseModel):
     user_id: int
