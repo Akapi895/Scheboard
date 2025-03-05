@@ -8,7 +8,7 @@ import json
 from typing import List, Optional
 from dotenv import load_dotenv
 from backend.database import DATABASE
-from ai_service.calendar.chatbot import chat_with_gemini
+from ai_service.gemini import chat_with_gemini
 
 load_dotenv()
 
@@ -42,10 +42,28 @@ async def get_calendar_plan_suggestions(prompt: str, tasks: List[dict]) -> str:
 
     with open(instructions_path, 'r', encoding='utf-8') as f:
         instructions = json.load(f)
-    instruction = instructions.get('instruction_2')
+    instruction_a = instructions.get('instruction_2')
+    instruction_b = instructions.get('instruction_3')
+
+    instruction = instruction_a + instruction_b
 
     response = chat_with_gemini(combined_text, instruction)
-    return response
+    
+    # Extract tasks from response and save to session
+    extracted_tasks = await extract_tasks_from_response(response)
+    
+    # Get user_id from the first task (assuming all tasks have same user_id)
+    if tasks and len(tasks) > 0 and 'user_id' in tasks[0]:
+        user_id = tasks[0]['user_id']
+        await save_session_tasks(user_id, extracted_tasks)
+    
+    # Remove JSON blocks from response
+    cleaned_response = re.sub(r"```json\s*\{.*?\}\s*```", "", response, flags=re.DOTALL)
+    
+    # Clean up any extra blank lines created by removing JSON blocks
+    cleaned_response = re.sub(r'\n{3,}', '\n\n', cleaned_response)
+    
+    return cleaned_response
 
 async def get_session_tasks(user_id: int):
     async with session_lock:
@@ -203,3 +221,16 @@ async def extract_tasks_from_response(response: str) -> List[dict]:
             continue
     
     return tasks
+
+# Lay mood va learning style o day
+session_moods = {}
+
+async def get_mood_from_session(user_id: int):
+    async with session_lock:
+        return session_moods.get(user_id)
+
+session_learning_style = {}    
+
+async def get_learning_style_from_session(user_id: int):
+    async with session_lock:
+        return session_learning_style.get(user_id)

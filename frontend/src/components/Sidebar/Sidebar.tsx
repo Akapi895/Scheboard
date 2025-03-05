@@ -67,7 +67,7 @@ const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
   };
 
   useEffect(() => {
-    console.log("Updated mainTasks:", mainTasks);
+    // console.log("Updated mainTasks:", mainTasks);
   }, [mainTasks]);
 
   // Hàm toggle hiển thị/ẩn danh sách main tasks

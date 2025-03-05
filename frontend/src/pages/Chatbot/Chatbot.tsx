@@ -19,7 +19,10 @@ const Chatbot = () => {
 
   // TODO
   // Hardcoded user_id for demo purposes - in real app this would come from auth
-  const userId = 1;
+  const [userId] = useState<number | null>(() => {
+    const storedUserId = localStorage.getItem("userId");
+    return storedUserId ? parseInt(storedUserId, 10) : null;
+  });
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

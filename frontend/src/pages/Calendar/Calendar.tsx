@@ -1,4 +1,5 @@
 import axios from "axios";
+import ReactMarkdown from 'react-markdown';
 import React, { useState, useEffect } from "react";
 import { Task } from "./types";
 import { fetchTasks, fetchTaskDetails, updateTaskStatus, deleteTask, updateTask } from "./api";
@@ -210,13 +211,23 @@ const Calendar: React.FC = () => {
 
   const isTaskInTimeSlot = (task: Task, date: Date, hour: number) => {
     try {
-      const taskDate = new Date(task.due_date);
-      return (
-        taskDate.getDate() === date.getDate() &&
-        taskDate.getMonth() === date.getMonth() &&
-        taskDate.getFullYear() === date.getFullYear() &&
-        taskDate.getHours() === hour
+      const dueDate = new Date(task.due_date);
+      
+      // Tính thời gian bắt đầu (due_date - estimated_time phút)
+      const startDate = new Date(dueDate.getTime() - task.estimated_time * 60 * 1000);
+      
+      // Tính thời gian của ô hiện tại
+      const cellDateTime = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        hour,
+        0,
+        0
       );
+      
+      // Kiểm tra xem ô có nằm trong khoảng thời gian của task không
+      return cellDateTime >= startDate && cellDateTime <= dueDate;
     } catch (err) {
       console.error("Error parsing date:", task.due_date, err);
       return false;
@@ -268,12 +279,140 @@ const Calendar: React.FC = () => {
     }
   };
 
+  // Thêm state cho câu trả lời AI
+const [aiResponse, setAiResponse] = useState<string | null>(null);
+const [question, setQuestion] = useState<string>("");
+const [isAskingQuestion, setIsAskingQuestion] = useState(false);
+
+const [aiTasks, setAiTasks] = useState<Task[]>(() => {
+  const storedSessionTasks = localStorage.getItem("session_tasks");
+  return storedSessionTasks ? JSON.parse(storedSessionTasks) : [];
+});
+
+  // Thêm hàm để lấy tasks từ session
+  const fetchSessionTasks = async () => {
+    if (!userId) return;
+    
+    try {
+      setLoading(true);
+      
+      const response = await fetch(`http://127.0.0.1:8000/api/calendar/ai/session-tasks?user_id=${userId}`);
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        // Format tasks nếu cần thiết
+        const formattedTasks = data.tasks.map((task: any) => {
+          // Kiểm tra nếu due_date không có định dạng đầy đủ giờ phút giây
+          const hasFullDateTime = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(task.due_date) || 
+                                /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(task.due_date);
+          
+          // Nếu không có định dạng đầy đủ, thêm giờ phút giây
+          let formattedDueDate = task.due_date;
+          if (!hasFullDateTime) {
+            formattedDueDate = `${task.due_date}T00:00:00`;
+          }
+          
+          return {
+            ...task,
+            due_date: formattedDueDate
+          };
+        });
+        
+        setAiTasks(formattedTasks);
+        // console.log('Session tasks loaded:', formattedTasks);
+      }
+    } catch (error) {
+      console.error("Failed to fetch session tasks:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+const handleSendQuestion = async () => {
+  if (question.trim()) {
+    try {
+      setLoading(true);
+      setIsAskingQuestion(true);
+      setAiResponse(null);
+      setAiTasks([]); 
+      
+      const response = await fetch('http://127.0.0.1:8000/api/calendar/ai/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "user_id": userId,
+          "prompt": question,
+          "tasks": tasks 
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        // Lưu câu trả lời AI
+        setAiResponse(data.ai_response);
+        
+        // Lấy tasks từ session sau khi API generate hoàn thành
+        await fetchSessionTasks();
+      }
+    } catch (error) {
+      console.error("Failed to send question:", error);
+    } finally {
+      setLoading(false);
+      setIsAskingQuestion(false);
+    }
+  }
+};
+
   return (
     <div className="calendar-container">
       {error && !showTaskPopup && !showAddTaskPopup && (
         <div className="error-message">{error}</div>
       )}
       
+      {/* Thêm phần hỏi đáp ở đây */}
+      <div className="calendar-question-section">
+        <div className="question-container">
+          <input
+            type="text"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Ask me anything about your schedule..."
+            disabled={isAskingQuestion}
+            className="question-input"
+            onKeyPress={(e) => e.key === 'Enter' && handleSendQuestion()}
+          />
+          <button 
+            onClick={handleSendQuestion}
+            disabled={isAskingQuestion || !question.trim()}
+            className="ask-btn"
+          >
+            {isAskingQuestion ? 'Asking...' : 'Ask'}
+          </button>
+        </div>
+        
+        {/* Hiển thị câu trả lời AI */}
+      {aiResponse && (
+        <div className="ai-response-container">
+          <div className="ai-response">
+            <ReactMarkdown>{aiResponse}</ReactMarkdown>
+          </div>
+        </div>
+      )}
+
+      </div>
+
       <div className="calendar-header">
         <button className="prev-week-btn" onClick={handlePrevWeek}>
           Last Week
@@ -299,33 +438,89 @@ const Calendar: React.FC = () => {
           </div>
         ))}
 
-        {/* Grid thời gian */}
         {hours.map((hour, hourIdx) => (
           <React.Fragment key={hourIdx}>
             <div className="time-slot">{hour}</div>
-            {weekDates.map((date, dayIdx) => (
-              <div 
-                key={`${dayIdx}-${hourIdx}`} 
-                className="cell"
-                onClick={() => handleCellClick(date, hourIdx)}
-              >
-                {tasks
-                  .filter(task => isTaskInTimeSlot(task, date, hourIdx))
-                  .map(task => (
-                    <div 
-                      key={task.task_id} 
-                      className={`task ${getTaskPriorityClass(task.priority)}`} 
-                      onClick={(e) => {
-                        e.stopPropagation(); // Ngăn sự kiện bubbling lên cell
-                        handleTaskClick(task);
-                      }}
-                    >
-                      {task.task_name}
-                      <div className="task-details">{task.description}</div>
-                    </div>
-                  ))}
-              </div>
-            ))}
+            {weekDates.map((date, dayIdx) => {
+              // Lấy các task trong ô này
+              const tasksInCell = tasks.filter(task => isTaskInTimeSlot(task, date, hourIdx));
+              return (  
+                <div 
+                  key={`${dayIdx}-${hourIdx}`} 
+                  className="cell"
+                  onClick={() => handleCellClick(date, hourIdx)}
+                >
+                  {tasksInCell.map(task => {
+                    // Tạo dueDate và startDate
+                    const dueDate = new Date(task.due_date);
+                    const startDate = new Date(dueDate.getTime() - task.estimated_time * 60 * 1000);
+
+                    const isStartingCell = (
+                      startDate.getDate() === date.getDate() &&
+                      startDate.getMonth() === date.getMonth() &&
+                      startDate.getFullYear() === date.getFullYear() &&
+                      (startDate.getHours() === hourIdx || (startDate.getHours() === hourIdx - 1 && startDate.getMinutes() > 0))
+                    );
+                      
+                    // Thêm class để hiển thị đúng phần của task
+                    let cellPosition = "";
+                    if (isStartingCell) {
+                      cellPosition = "task-start";
+                    } else if (
+                      dueDate.getDate() === date.getDate() && 
+                      dueDate.getMonth() === date.getMonth() &&
+                      dueDate.getHours() === hourIdx
+                    ) {
+                      cellPosition = "task-end";
+                    } else {
+                      cellPosition = "task-mid";
+                    }
+                    
+                    return (
+                      <div 
+                        key={task.task_id} 
+                        className={`task ${getTaskPriorityClass(task.priority)} ${cellPosition}`} 
+                        style={{
+                          gridColumn: dayIdx + 1,
+                          gridRow: (() => {
+                            if (isStartingCell) {
+                              return hourIdx + 1; // +1 vì grid-row bắt đầu từ 1, không phải 0
+                            } else {
+                              return hourIdx + 1;
+                            }
+                          })(),
+                          gridRowEnd: 'auto', 
+                          position: 'relative',
+                          zIndex: 5,
+                          height: '103%',
+                          width: '100%',
+                          boxSizing: 'border-box',
+                          margin: 0,
+                          padding: '4px 8px',  // Added missing comma here
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center'
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTaskClick(task);
+                        }}
+                      >
+                        {isStartingCell && (
+                        <>
+                          {/* {console.log('Task name:', task.task_name, 'Priority:', task.priority)} */}
+                          {task.task_name}
+                          <div className="task-time">
+                            {startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {dueDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                          </div>
+                        </>
+                      )}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
           </React.Fragment>
         ))}
       </div>

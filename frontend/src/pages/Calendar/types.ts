@@ -12,3 +12,14 @@ export interface Task {
     parent_task_id: number | null;
   }
   
+ export interface ApiTask {
+    task_name: string;
+    task_type: string;
+    description: string;
+    due_date: string;
+    priority: string;
+    estimated_time: number;
+    status: string;
+    category: string;
+    parent_task_id: number | null;
+  }

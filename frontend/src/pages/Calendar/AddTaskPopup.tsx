@@ -137,7 +137,7 @@ const AddTaskPopup: React.FC<AddTaskPopupProps> = ({
             
             {selectedTimeSlot && (
               <div className="form-group">
-                <label>Selected Time:</label>
+                <label>Due Date:</label>
                 <div className="selected-timeslot">
                   {selectedTimeSlot.date.toLocaleDateString()} at {selectedTimeSlot.hour}:00
                 </div>
