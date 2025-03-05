@@ -10,7 +10,9 @@ from .services import (
     save_all_session_tasks,
     save_one_session_task,
     delete_all_session_tasks,
-    delete_one_session_task
+    delete_one_session_task,
+    get_mood_from_session,
+    get_learning_style_from_session
 )
 
 router = APIRouter()
@@ -31,17 +33,6 @@ class CalendarAIRequest(BaseModel):
     prompt: str
     tasks: List[AITask]
 
-@router.post("/api/calendar/ai/generate_suggestions")
-async def generate_calendar_plan(request: CalendarAIRequest):
-    try:
-        tasks_as_dict = [t.dict() for t in request.tasks]
-        result = await get_calendar_plan_suggestions(request.prompt, tasks_as_dict)
-        return {
-            "status": "success",
-            "data": result
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 class DeclineOneTaskRequest(BaseModel):
     user_id: int
@@ -122,17 +113,17 @@ class CalendarSuggestAndSaveResponse(BaseModel):
 @router.post("/api/calendar/ai/generate", response_model=CalendarSuggestAndSaveResponse)
 async def generate_suggestions_and_save(request: CalendarSuggestAndSaveRequest):
     try:
-        # Step 1: Generate AI suggestions
+        user_mood = await get_mood_from_session(request.user_id) 
+        learning_style = await get_learning_style_from_session(request.user_id)    
         tasks_as_dict = [t.dict() for t in request.tasks]
-        ai_response = await get_calendar_plan_suggestions(request.prompt, tasks_as_dict) # ls, mood
+
+        prompt_main = request.prompt
+        prompt_main += f"\nCurrent mood: {user_mood}"
+        prompt_main += f"\nLearning style: {learning_style}"
+        ai_response = await get_calendar_plan_suggestions(prompt_main, tasks_as_dict)
         
-        # Step 2: Extract tasks from the AI response
         extracted_tasks = await extract_tasks_from_response(ai_response)
-        
-        # Step 3: Save the extracted tasks to the session
         await save_session_tasks(request.user_id, extracted_tasks)
-        
-        # Step 4: Convert dictionary tasks back to AITask objects for response
         ai_tasks = [AITask(**task) for task in extracted_tasks]
         
         return CalendarSuggestAndSaveResponse(

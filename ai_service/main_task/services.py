@@ -2,7 +2,8 @@ import logging
 import aiosqlite
 import asyncio
 from backend.database import DATABASE
-
+from ai_service.gemini import chat_with_gemini
+from typing import List, Dict, Any
 # Create a new dictionary for session resources
 session_resources = {}
 session_lock = asyncio.Lock()
@@ -104,3 +105,68 @@ async def save_all_session_resources(user_id: int, task_id: int):
             "message": f"Unexpected error: {error_msg}",
             "count": 0
         }
+    
+
+from typing import List, Dict, Any
+from ai_service.chatbot.services import get_chat_response
+
+async def generate_and_save_resource_suggestions(user_id: int, task_id: int, task_details: Dict[str, Any]):
+    try:
+        prompt = (
+            f"Vui lòng đề xuất 5 nguồn học tập chất lượng cao cho task sau:\n"
+            f"Task: {task_details.get('title', 'Unknown task')}\n"
+            f"Description: {task_details.get('description', 'No description provided')}\n\n"
+            f"Đối với mỗi nguồn tài nguyên, hãy cung cấp thông tin sau theo đúng định dạng này:\n"
+            f"Type: [video/article/book/course/tutorial]\n"
+            f"Title: [descriptive title]\n"
+            f"URL: [working URL to access the resource]\n"
+            f"Tag: [primary topic or skill covered]\n\n"
+            f"Hãy đảm bảo tất cả các tài nguyên được đề xuất đều có liên quan trực tiếp đến nhiệm vụ."
+        )
+        ai_response = await get_chat_response(user_id, prompt)
+        resources = parse_resources_from_ai_response(ai_response)
+        await save_session_resources(user_id, resources)
+        
+        return {
+            "success": True,
+            "message": f"Generated {len(resources)} resource suggestions",
+            "resources": resources
+        }
+    except Exception as e:
+        logging.error(f"Error generating resource suggestions for user {user_id}, task {task_id}: {e}", exc_info=True)
+        return {
+            "success": False,
+            "message": f"Failed to generate resources: {str(e)}",
+            "resources": []
+        }
+
+def parse_resources_from_ai_response(response: str) -> List[Dict[str, str]]:
+    resources = []
+    lines = response.split('\n')
+    current_resource = {}
+    
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+            
+        if line.lower().startswith("type:"):
+            # If we were building a resource, add it to our list
+            if current_resource and all(k in current_resource for k in ["type", "title", "url", "tag"]):
+                resources.append(current_resource)
+                current_resource = {}
+            current_resource["type"] = line[5:].strip()
+        elif line.lower().startswith("title:"):
+            if current_resource:
+                current_resource["title"] = line[6:].strip()
+        elif line.lower().startswith("url:"):
+            if current_resource:
+                current_resource["url"] = line[4:].strip()
+        elif line.lower().startswith("tag:"):
+            if current_resource:
+                current_resource["tag"] = line[4:].strip()
+    
+    if current_resource and all(k in current_resource for k in ["type", "title", "url", "tag"]):
+        resources.append(current_resource)
+    
+    return resources

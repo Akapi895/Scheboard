@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 import json
 from typing import List, Dict
-from .chatbot import chat_with_gemini
+from ai_service.gemini import chat_with_gemini
 
 load_dotenv()
 

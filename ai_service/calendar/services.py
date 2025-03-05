@@ -8,7 +8,7 @@ import json
 from typing import List, Optional
 from dotenv import load_dotenv
 from backend.database import DATABASE
-from ai_service.calendar.chatbot import chat_with_gemini
+from ai_service.gemini import chat_with_gemini
 
 load_dotenv()
 
@@ -42,7 +42,10 @@ async def get_calendar_plan_suggestions(prompt: str, tasks: List[dict]) -> str:
 
     with open(instructions_path, 'r', encoding='utf-8') as f:
         instructions = json.load(f)
-    instruction = instructions.get('instruction_2')
+    instruction_a = instructions.get('instruction_2')
+    instruction_b = instructions.get('instruction_3')
+
+    instruction = instruction_a + instruction_b
 
     response = chat_with_gemini(combined_text, instruction)
     return response
