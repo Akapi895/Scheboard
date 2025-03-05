@@ -7,18 +7,18 @@ body {
 
 .sidebar-container {
     width: 200px;
-    height: 100vh; /* Make the sidebar full height */
+    height: 85vh; 
     background-color: #F4F4F4; 
     display: flex;
     flex-direction: column;
-    padding: 20px;
-    border-radius: 0 30px 30px 0; /* Adjust border-radius */
-    position: fixed; /* Fix the sidebar to the left */
-    top: 0; /* Align to the top */
-    left: 0; /* Align to the left */
+    padding: 15px 10px 10px;
+    border-radius: 30px;
+    margin-top: 60px;
+    margin-left: 10px;
 }
 
 .sidebar ul {
+    width: 100%;
     list-style: none;
     padding: 0;
     margin: 0;    
@@ -34,6 +34,7 @@ body {
 
 .sidebar ul li span {
     width: 100%;
+    flex-grow: 1;
 }
 
 .sidebar ul li a {
@@ -41,12 +42,16 @@ body {
     text-decoration: none; 
     color: #06094D; 
     font-weight: bold;
-    padding: 3px;
+    padding: 10px 5px;
     border-radius: 50px;
     transition: background 0.3s, color 0.3s;
-    margin-right: 15px;
     align-items: center;
     width: 100%;
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: 
+    text-overflow: ellipsis;
+    height: 50px;
 }
 
 .sidebar ul li a .icon {
@@ -59,11 +64,12 @@ body {
     margin-right: 15px; 
     border-radius: 50%;
     transition: background 0.3s, color 0.3s;
+    flex-shrink: 0;
 }
-
 
 .sidebar ul li a:hover,
 .sidebar ul li a.active {
+    width: 100%;
     background-color: #06094D; 
     color: white;
 }
@@ -72,69 +78,40 @@ body {
 .sidebar ul li a.active .icon {
     background-color: white;
     color: #06094D;
+    border-radius: 50%; /* Ensure the icon background is rounded */
 }
 
 .sidebar .main-task {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
     text-align: center;
     color: #06094D;
     font-weight: bold;
-    margin: 25px 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     font-size: 20px;
-    flex-direction: column;
+    margin: 20px 0;
+    padding: 15px 0;
+    width: 100%;
 }
 
-.sidebar .main-task hr {
-    flex-grow: 1;
-    border: none;
-    height: 1px;
-    background-color: #06094D;
-    margin: 0 10px;
-}
-
-
-.main-task {
-    background-color: transparent;
-    position: relative;
-    padding: 10px 10px;
-    cursor: pointer;
-    transition: background 0.3s ease-in-out;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap; 
-    max-height: 760px;
-}
-
-.main-task-header:hover,
-.main-task-header:active {
-    background-color: transparent; 
-    color: #ffffff;
-    text-shadow: 0 0 1px #06094D, 0 0 12px #06094D, 0 0 16px #06094D;  
-}
-
-.main-task::before,
-.main-task::after {
+/* Tạo 2 dòng kẻ trên và dưới */
+.sidebar .main-task::before,
+.sidebar .main-task::after {
     content: "";
     position: absolute;
     left: 0;
-    width: 100%;
-    background-color: #727272; 
+    width: 100%; /* Độ dài của đường kẻ */
+    height: 2px; /* Độ dày của đường kẻ */
+    background-color: #06094D; /* Màu của đường kẻ */
 }
 
-.main-task::before {
-    height: 1px;
-    top: 0;
+.sidebar .main-task::before {
+    top: 0; 
 }
 
-.main-task::after {
-    height: 1px;
+.sidebar .main-task::after {
     bottom: 0; 
-}
-.sidebar .main-task {
-    margin: 10px ;
 }
 
 .sidebar .logout {
@@ -152,7 +129,7 @@ body {
     overflow: hidden;
     color: #06094D;
     font-size: 14px;
-  }
+}
 
 .task-name:hover {
     color: #ffffff;

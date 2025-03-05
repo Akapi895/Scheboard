@@ -7,7 +7,7 @@
 
 .calendar-container {
   width: 300%;
-  /* width: calc(100% - 200px); Adjust width to exclude sidebar */
+  width: calc(100% - 200px); /* Adjust width to exclude sidebar */
   margin-left: 20px; /* Offset by the width of the sidebar */
   max-width: none; /* Remove max-width constraint */
   margin-top: 20px;

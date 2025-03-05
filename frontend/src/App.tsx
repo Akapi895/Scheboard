@@ -63,7 +63,7 @@ function App() {
     <Router>
       <div className="app">
         {isAuthenticated && <Sidebar onLogout={handleLogout} />}
-        <div className="content">
+        <div className={`content ${isAuthenticated ? 'content-authenticated' : ''}`}>
           <Routes>
             <Route 
               path="/login" 
@@ -93,10 +93,6 @@ function App() {
             />
             <Route 
               path="/calendar" 
-              element={isAuthenticated ? <Calendar /> : <Navigate to="/login" />}
-            />
-            <Route 
-              path="/dashboard" 
               element={isAuthenticated ? <Calendar /> : <Navigate to="/login" />}
             />
             <Route 
