@@ -4,8 +4,8 @@ import './Sidebar.css';
 
 // Định nghĩa interface cho main task
 interface MainTask {
-  main_task_id: number;
-  name: string;
+  task_id: number;
+  task_name: string;
   // Các thuộc tính khác nếu cần
 }
 
@@ -34,6 +34,7 @@ const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
     if (!userId) return;
 
     setLoading(true);
+
     try {
       const response = await fetch('http://127.0.0.1:8000/api/main-tasks', {
         method: 'POST',
@@ -51,7 +52,9 @@ const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
 
       const data = await response.json();
       if (data.status === 'success') {
-        setMainTasks(data.data);
+        // setMainTasks(...data.data);
+        setMainTasks([...data.data]);
+        // console.log(data.data);
       } else {
         throw new Error('Failed to fetch main tasks');
       }
@@ -60,7 +63,12 @@ const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
     } finally {
       setLoading(false);
     }
+    // console.log(mainTasks);
   };
+
+  useEffect(() => {
+    console.log("Updated mainTasks:", mainTasks);
+  }, [mainTasks]);
 
   // Hàm toggle hiển thị/ẩn danh sách main tasks
   const toggleMainTasks = () => {
@@ -155,22 +163,24 @@ const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
           </div>
 
           {/* Danh sách main tasks xuất hiện bên dưới */}
-          {showMainTasks && (
+
+          {/* chưa fix */}
+          {showMainTasks && mainTasks.length > 0 && (
             <div className="main-tasks-list">
               {loading ? (
                 <div className="loading">Loading...</div>
               ) : mainTasks && mainTasks.length > 0 ? (
                 mainTasks.map((task) => (
                   <Link 
-                    key={task.main_task_id} 
-                    to={`/tasks/${task.main_task_id}`}
+                    key={task.task_id} 
+                    to={`/tasks/${task.task_id}`}
                     className="main-task-item"
                   >
-                    <span className="task-name">{task.name}</span>
+                    <span className="task-name">{task.task_name}</span>
                   </Link>
                 ))
               ) : (
-                <div className="no-tasks">No main tasks found</div>
+                <div className="no-tasks"></div>
               )}
             </div>
           )}

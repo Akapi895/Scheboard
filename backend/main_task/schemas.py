@@ -6,7 +6,7 @@ class MainTasks(BaseModel):
 
 class MainTaskList(BaseModel):
     status: str
-    data: list[str]
+    data: list[Dict]
 
 
 class MainTaskRequest(BaseModel):

@@ -4,10 +4,12 @@ from database import DATABASE
 from .schemas import SubTaskCreateRequest, TaskUpdateRequest, StatusUpdateRequest, UploadResourceRequest
 
 # Task
+
+
 async def get_main_tasks_name(user_id: int) -> list[dict]:
     async with aiosqlite.connect(DATABASE) as db:
         cursor = await db.execute('''
-            SELECT task_name
+            SELECT task_id, task_name
             FROM tasks
             WHERE user_id = ? AND task_type = ?
         ''', (user_id, "maintask"))
@@ -16,7 +18,12 @@ async def get_main_tasks_name(user_id: int) -> list[dict]:
 
         main_task_list = []
         for task in main_tasks:
-            main_task_list.append(str(task[0]))
+            main_task_list.append(
+                {
+                    "task_id": task[0],
+                    "task_name": task[1]
+                }
+            )
 
         return main_task_list
 
