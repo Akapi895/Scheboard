@@ -2,11 +2,35 @@ import aiosqlite
 from database import DATABASE
 
 # tested
-async def get_tasks(user_id: int) -> list:
+async def get_tasks(user_id: int) -> list[dict]:
     async with aiosqlite.connect(DATABASE) as db:
+        # Đặt row_factory để lấy kết quả dưới dạng dict thay vì tuple
+        db.row_factory = aiosqlite.Row
+        
         cursor = await db.execute("SELECT * FROM tasks WHERE user_id = ?", (user_id,))
-        tasks = await cursor.fetchall()
+        tasks_raw = await cursor.fetchall()
         await cursor.close()
+        
+        # Chuyển đổi các Row objects thành dicts
+        tasks = []
+        for task in tasks_raw:
+            task_dict = {
+                "task_id": task["task_id"],
+                "task_name": task["task_name"],
+                "description": task["description"],
+                "category": task["category"],
+                "priority": task["priority"],
+                "status": task["status"],
+                "estimated_time": task["estimated_time"],
+                "due_date": task["due_date"],
+                "task_type": task["task_type"],
+                "user_id": task["user_id"],
+                "parent_task_id": task["parent_task_id"]
+            }
+            tasks.append(task_dict)
+            
+        print(f"Retrieved {len(tasks)} tasks for user {user_id}")
+        
         return tasks
 
 # tested
@@ -51,7 +75,7 @@ async def create_task(task: dict) -> int:
                 task["status"],
                 task["estimated_time"],
                 task["due_date"],
-                task["task_type"],
+                "subtask", #task["task_type"]
                 task["user_id"],
                 task.get("parent_task_id")
             )

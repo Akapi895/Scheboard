@@ -1,0 +1,122 @@
+.chatbot-container {
+  position: fixed;
+  top: 0;
+  left: 200px; /* Adjust for sidebar width */
+  width: calc(100% - 200px);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f4f4f4;
+}
+
+.chat-window {
+  width: 80%;
+  height: 80%;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.message {
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  max-width: 100%;
+}
+
+.message.user {
+  background-color: #d1e7dd;
+  align-self: flex-end;
+  text-align: right;
+}
+
+.message.ai {
+  background-color: #f8d7da;
+  align-self: flex-start;
+  text-align: left;
+}
+
+.input-area {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+.input-area input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.input-area button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #06094d;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.input-area button:hover {
+  background-color: #04072e;
+}
+
+/* Thêm vào file Chatbot.css */
+.message-content ul, 
+.message-content ol {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+
+.message-content p {
+  margin: 8px 0;
+}
+
+.message-content h1, 
+.message-content h2, 
+.message-content h3,
+.message-content h4,
+.message-content h5 {
+  margin: 12px 0 8px;
+}
+
+.message-content pre {
+  background-color: #f5f5f5;
+  padding: 8px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.message-content code {
+  background-color: #f5f5f5;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.message-content blockquote {
+  border-left: 4px solid #ddd;
+  padding-left: 10px;
+  color: #666;
+  margin: 8px 0;
+}
+
+/* Định dạng cho trường hợp các dấu * và _ trong Markdown */
+.message-content strong {
+  font-weight: bold;
+}
+
+.message-content em {
+  font-style: italic;
+}

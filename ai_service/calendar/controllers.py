@@ -12,7 +12,8 @@ from .services import (
     delete_all_session_tasks,
     delete_one_session_task,
     get_mood_from_session,
-    get_learning_style_from_session
+    get_learning_style_from_session,
+    get_session_tasks
 )
 
 router = APIRouter()
@@ -126,7 +127,6 @@ async def generate_suggestions_and_save(request: CalendarSuggestAndSaveRequest):
         prompt = f"{request.prompt}\nCurrent mood: {user_mood}\nLearning style: {learning_style}"
         ai_response = await get_calendar_plan_suggestions(prompt, tasks_as_dict)
         
-        
         return CalendarSuggestAndSaveResponse(
             status="success", 
             ai_response=ai_response,
@@ -134,3 +134,32 @@ async def generate_suggestions_and_save(request: CalendarSuggestAndSaveRequest):
     except Exception as e:
         logging.error(f"Error generating suggestions for user {request.user_id}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to generate suggestions.")
+
+from pydantic import BaseModel
+from typing import List
+
+class AITask(BaseModel):
+    task_name: str
+    description: str
+    priority: str
+    estimated_time: int
+    due_date: str
+    status: str = "todo"
+    category: str = "study"
+
+class SessionTasksResponse(BaseModel):
+    status: str
+    tasks: List[AITask]
+
+@router.get("/api/calendar/ai/session-tasks")
+async def get_ai_session_tasks(user_id: int):
+    try:
+        tasks = await get_session_tasks(user_id)
+        logging.info(f"Retrieved {len(tasks)} session tasks for user {user_id}")
+        return SessionTasksResponse(status="success", tasks=tasks)
+    except Exception as e:
+        logging.error(f"Error retrieving session tasks: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, 
+            detail="Failed to retrieve session tasks"
+        )

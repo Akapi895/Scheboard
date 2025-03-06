@@ -1,5 +1,6 @@
 .env
 .venv
+venv
 .vscode
 
 backend/__pycache__
@@ -10,3 +11,7 @@ ai_service/*/__pycache__
 frontend/node_modules
 
 # scheboard.db
+
+# frontend
+node_modules
+frontend/build
