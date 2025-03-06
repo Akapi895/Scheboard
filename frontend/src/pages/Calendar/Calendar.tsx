@@ -9,6 +9,7 @@ import EditTaskPopup from "./EditTaskPopup";
 import "./calendar.css";
 
 const Calendar: React.FC = () => {
+  
   const [userId] = useState<number | null>(() => {
     const storedUserId = localStorage.getItem("userId");
     return storedUserId ? parseInt(storedUserId, 10) : null;
@@ -290,48 +291,48 @@ const [aiTasks, setAiTasks] = useState<Task[]>(() => {
 });
 
   // Thêm hàm để lấy tasks từ session
-  const fetchSessionTasks = async () => {
-    if (!userId) return;
+  // const fetchSessionTasks = async () => {
+  //   if (!userId) return;
     
-    try {
-      setLoading(true);
+  //   try {
+  //     setLoading(true);
       
-      const response = await fetch(`http://127.0.0.1:8000/api/calendar/ai/session-tasks?user_id=${userId}`);
+  //     const response = await fetch(`http://127.0.0.1:8000/api/calendar/ai/session-tasks?user_id=${userId}`);
       
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
+  //     if (!response.ok) {
+  //       throw new Error(`API error: ${response.status}`);
+  //     }
       
-      const data = await response.json();
+  //     const data = await response.json();
       
-      if (data.status === 'success') {
-        // Format tasks nếu cần thiết
-        const formattedTasks = data.tasks.map((task: any) => {
-          // Kiểm tra nếu due_date không có định dạng đầy đủ giờ phút giây
-          const hasFullDateTime = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(task.due_date) || 
-                                /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(task.due_date);
+  //     if (data.status === 'success') {
+  //       // Format tasks nếu cần thiết
+  //       const formattedTasks = data.tasks.map((task: any) => {
+  //         // Kiểm tra nếu due_date không có định dạng đầy đủ giờ phút giây
+  //         const hasFullDateTime = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(task.due_date) || 
+  //                               /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(task.due_date);
           
-          // Nếu không có định dạng đầy đủ, thêm giờ phút giây
-          let formattedDueDate = task.due_date;
-          if (!hasFullDateTime) {
-            formattedDueDate = `${task.due_date}T00:00:00`;
-          }
+  //         // Nếu không có định dạng đầy đủ, thêm giờ phút giây
+  //         let formattedDueDate = task.due_date;
+  //         if (!hasFullDateTime) {
+  //           formattedDueDate = `${task.due_date}T00:00:00`;
+  //         }
           
-          return {
-            ...task,
-            due_date: formattedDueDate
-          };
-        });
+  //         return {
+  //           ...task,
+  //           due_date: formattedDueDate
+  //         };
+  //       });
         
-        setAiTasks(formattedTasks);
-        console.log('Session tasks loaded:', formattedTasks);
-      }
-    } catch (error) {
-      console.error("Failed to fetch session tasks:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //       setAiTasks(formattedTasks);
+  //       console.log('Session tasks loaded:', formattedTasks);
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to fetch session tasks:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
 const handleSendQuestion = async () => {
   if (question.trim()) {
@@ -362,42 +363,7 @@ const handleSendQuestion = async () => {
       if (data.status === 'success') {
         // Lưu câu trả lời AI
         setAiResponse(data.ai_response);
-        
-        // Thay vì sử dụng aiTasks state, hãy sử dụng kết quả trực tiếp từ API
-        const sessionResponse = await fetch(`http://127.0.0.1:8000/api/calendar/ai/session-tasks?user_id=${userId}`);
-        
-        if (!sessionResponse.ok) {
-          throw new Error(`API error: ${sessionResponse.status}`);
-        }
-        
-        const sessionData = await sessionResponse.json();
-        
-        if (sessionData.status === 'success') {
-          // Format tasks nếu cần thiết
-          const formattedTasks = sessionData.tasks.map((task: any) => {
-            // Kiểm tra nếu due_date không có định dạng đầy đủ giờ phút giây
-            const hasFullDateTime = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(task.due_date) || 
-                                  /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(task.due_date);
-            console.log("dm calendar");
-            // Nếu không có định dạng đầy đủ, thêm giờ phút giây
-            let formattedDueDate = task.due_date;
-            if (!hasFullDateTime) {
-              formattedDueDate = `${task.due_date} 00:00:00`;
-            }
-            
-            return {
-              ...task,
-              due_date: formattedDueDate
-            };
-          });
-          
-          // Cập nhật state
-          setAiTasks(formattedTasks);
-          console.log('Session tasks loaded:', formattedTasks);
-          
-          // Gọi handleAcceptAllTasks với dữ liệu mới có được trực tiếp
-          await handleAcceptAllTasksWithData(formattedTasks);
-        }
+
       }
     } catch (error) {
       console.error("Failed to send question:", error);
