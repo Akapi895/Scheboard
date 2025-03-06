@@ -13,10 +13,10 @@ class ProfileResponse(BaseModel):
 class ProfileRequest(BaseModel):
     user_id: int
  
-@router.get("/api/profile", response_model=ProfileResponse)
-async def get_profile(user_id: int):
+@router.post("/api/profile", response_model=ProfileResponse)
+async def get_profile(profileRequest: ProfileRequest):
     try:
-        profile_data = await get_user_profile(user_id)
+        profile_data = await get_user_profile(profileRequest.user_id)
         return {"status": "success", "data": profile_data}
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))

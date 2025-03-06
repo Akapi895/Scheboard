@@ -35,24 +35,73 @@ const Profile = () => {
     fetchProfileData();
   }, []);
 
+  // const fetchProfileData = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     const response = await fetch(`http://127.0.0.1:8000/api/profile?user_id=${userId}`, {
+  //       method: 'GET',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       }
+  //     });      
+
+  //     if (!response.ok) {
+  //       throw new Error(`Error fetching profile: ${response.status}`);
+  //     }
+
+  //     const data = await response.json();
+      
+  //     if (data.status === 'success') {
+  //       setProfile(data.data);
+        
+  //       // Initialize form fields with current values
+  //       setAvaUrl(data.data.ava_url || '');
+  //       setAboutMe(data.data.about_me || '');
+  //       setLearningStyle(data.data.learning_style || 'Spaced Repetition');
+  //     } else {
+  //       throw new Error('API returned error status');
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to fetch profile data:', error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const fetchProfileData = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/profile?user_id=${userId}`, {
-        method: 'GET',
+      // Use POST method since the API endpoint expects a ProfileRequest object
+      const response = await fetch(`http://127.0.0.1:8000/api/profile`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
+        body: JSON.stringify({
+          user_id: userId
+        })
       });      
-
+  
       if (!response.ok) {
         throw new Error(`Error fetching profile: ${response.status}`);
       }
-
+  
       const data = await response.json();
       
       if (data.status === 'success') {
-        setProfile(data.data);
+        // Map the API response to our ProfileData structure
+        const profileData: ProfileData = {
+          user_id: userId,
+          username: data.data.username,
+          ava_url: data.data.ava_url,
+          email: data.data.email,
+          about_me: data.data.about_me,
+          learning_style: data.data.learning_style,
+          total_tasks: data.data.total_task,
+          completion_rate: data.data.completion_percentage
+        };
+        
+        setProfile(profileData);
         
         // Initialize form fields with current values
         setAvaUrl(data.data.ava_url || '');
@@ -172,7 +221,7 @@ const Profile = () => {
             <div><span>Completion rate:</span> <span id="completion-rate">
               {isLoading ? "Loading..." : (
                 typeof profile.completion_rate === 'number' 
-                  ? `${profile.completion_rate}%` 
+                  ? `${profile.completion_rate.toFixed(1)}%` 
                   : "0%"
               )}
             </span></div>
