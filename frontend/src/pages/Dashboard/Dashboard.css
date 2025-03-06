@@ -262,3 +262,22 @@
 .mood-button:hover {
   opacity: 0.8;
 }
+
+.mood-button.not-selected {
+  opacity: 0.3;
+  filter: grayscale(70%);
+  transition: opacity 0.3s, filter 0.3s;
+}
+
+/* Thay đổi hover effect để làm nổi bật khi hover trên nút không được chọn */
+.mood-button.not-selected:hover {
+  opacity: 0.6;
+  filter: grayscale(30%);
+}
+
+/* Đảm bảo nút được chọn luôn rõ ràng */
+.mood-button.selected {
+  opacity: 1;
+  filter: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* Blue glow for selected */
+}

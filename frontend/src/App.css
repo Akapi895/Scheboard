@@ -49,3 +49,11 @@
   overflow-y: auto; /* Cho phép cuộn dọc trong nội dung chính */
 }
 
+.content-authenticated {
+  margin-left: 220px; /* Width of sidebar + 10px gap */
+}
+
+.main-content {
+  margin-left: 220px; /* Width of sidebar + 10px gap */
+  padding: 10px; /* Optional padding for main content */
+}

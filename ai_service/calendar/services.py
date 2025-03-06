@@ -23,6 +23,9 @@ session_lock = asyncio.Lock()
 
 async def get_calendar_plan_suggestions(prompt: str, tasks: List[dict]) -> str:
     tasks_text = ""
+    # User ID from tasks (assuming all have the same user ID)
+    user_id = tasks[0].get('user_id') if tasks and len(tasks) > 0 else None
+    
     for t in tasks:
         tasks_text += (
             f"- Task ID: {t.get('task_id')}, "
@@ -50,17 +53,15 @@ async def get_calendar_plan_suggestions(prompt: str, tasks: List[dict]) -> str:
     response = chat_with_gemini(combined_text, instruction)
     
     # Extract tasks from response and save to session
-    extracted_tasks = await extract_tasks_from_response(response)
+    extracted_tasks = await extract_tasks_from_response(response, user_id)
     
-    # Get user_id from the first task (assuming all tasks have same user_id)
-    if tasks and len(tasks) > 0 and 'user_id' in tasks[0]:
-        user_id = tasks[0]['user_id']
+    # Save extracted tasks to session
+    if user_id is not None:
         await save_session_tasks(user_id, extracted_tasks)
+        await save_all_session_tasks(user_id) #mtran hiện hồn đi 
     
     # Remove JSON blocks from response
     cleaned_response = re.sub(r"```json\s*\{.*?\}\s*```", "", response, flags=re.DOTALL)
-    
-    # Clean up any extra blank lines created by removing JSON blocks
     cleaned_response = re.sub(r'\n{3,}', '\n\n', cleaned_response)
     
     return cleaned_response
@@ -70,8 +71,13 @@ async def get_session_tasks(user_id: int):
         return session_tasks.get(user_id, [])
 
 async def save_session_tasks(user_id: int, tasks: list):
-    async with session_lock:
-        session_tasks[user_id] = tasks
+        async with session_lock:
+        # Ensure every task has the user_id
+            for task in tasks:
+                task['user_id'] = user_id
+                
+            session_tasks[user_id] = tasks
+            logging.info(f"Saved {len(tasks)} tasks to session for user {user_id}")
 
 async def delete_all_session_tasks(user_id: int) -> bool:
     async with session_lock:
@@ -132,6 +138,8 @@ async def save_all_session_tasks(user_id: int):
     try:
         # Get tasks from session
         tasks_in_session = await get_session_tasks(user_id)
+
+        # print(tasks_in_session)
         
         if not tasks_in_session:
             logging.info(f"No tasks in session for user {user_id}")
@@ -189,12 +197,13 @@ async def save_one_session_task(user_id: int, task_name: str):
     else:
         raise ValueError(f"Failed to save task '{task_name}' to database")
 
-async def extract_tasks_from_response(response: str) -> List[dict]:
+async def extract_tasks_from_response(response: str, user_id: int = None) -> List[dict]:
     """
     Extracts JSON task objects from an AI response that contains formatted code blocks.
     
     Args:
         response: The AI response string containing JSON task blocks
+        user_id: The user ID to add to each task
         
     Returns:
         A list of parsed task dictionaries
@@ -214,6 +223,10 @@ async def extract_tasks_from_response(response: str) -> List[dict]:
                 task["category"] = "study"  # Default category
             if "status" not in task:
                 task["status"] = "todo"  # Default status
+                
+            # Add user_id if provided
+            if user_id is not None:
+                task["user_id"] = user_id
                 
             tasks.append(task)
         except json.JSONDecodeError as e:

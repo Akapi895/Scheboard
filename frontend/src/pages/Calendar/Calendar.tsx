@@ -378,11 +378,11 @@ const handleSendQuestion = async () => {
             // Kiểm tra nếu due_date không có định dạng đầy đủ giờ phút giây
             const hasFullDateTime = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(task.due_date) || 
                                   /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(task.due_date);
-            
+            console.log("dm calendar");
             // Nếu không có định dạng đầy đủ, thêm giờ phút giây
             let formattedDueDate = task.due_date;
             if (!hasFullDateTime) {
-              formattedDueDate = `${task.due_date}T00:00:00`;
+              formattedDueDate = `${task.due_date} 00:00:00`;
             }
             
             return {
@@ -500,55 +500,55 @@ const validateTasks = (tasks: any[]) => {
   });
 };
 
-const handleAcceptAllTasks = async () => {
-  if (aiTasks.length === 0) return;
+// const handleAcceptAllTasks = async () => {
+//   if (aiTasks.length === 0) return;
   
-  try {
-    setLoading(true);
+//   try {
+//     setLoading(true);
     
-    // Thêm các AI tasks vào danh sách tasks chính
-    // Cần thêm user_id vào mỗi task trước khi gửi lên server
-    const tasksToAdd = aiTasks.map(task => ({ 
-      ...task,
-      user_id: userId
-    }));
+//     // Thêm các AI tasks vào danh sách tasks chính
+//     // Cần thêm user_id vào mỗi task trước khi gửi lên server
+//     const tasksToAdd = aiTasks.map(task => ({ 
+//       ...task,
+//       user_id: userId
+//     }));
     
-    // Gọi API để lưu các tasks này vào database
-    const response = await fetch('http://127.0.0.1:8000/api/calendar/ai/accept/all', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        user_id: userId,
-        tasks: tasksToAdd
-      }),
-    });
+//     // Gọi API để lưu các tasks này vào database
+//     const response = await fetch('http://127.0.0.1:8000/api/calendar/ai/accept/all', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({
+//         user_id: userId,
+//         tasks: tasksToAdd
+//       }),
+//     });
     
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
+//     if (!response.ok) {
+//       throw new Error(`API error: ${response.status}`);
+//     }
     
-    const data = await response.json();
+//     const data = await response.json();
     
-    if (data.status === 'success') {
-      // Thêm ngay lập tức các task vào state local để UI cập nhật ngay
-      setTasks([...tasks, ...tasksToAdd]);
+//     if (data.status === 'success') {
+//       // Thêm ngay lập tức các task vào state local để UI cập nhật ngay
+//       setTasks([...tasks, ...tasksToAdd]);
       
-      await fetchTasks(userId).then(setTasks);
-      setAiTasks([]);
+//       await fetchTasks(userId).then(setTasks);
+//       setAiTasks([]);
       
-      alert('All tasks have been added to your calendar!');
-    } else {
-      throw new Error('Failed to add tasks');
-    }
-  } catch (error) {
-    console.error("Failed to accept tasks:", error);
-    setError("Failed to add tasks to your calendar. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
+//       alert('All tasks have been added to your calendar!');
+//     } else {
+//       throw new Error('Failed to add tasks');
+//     }
+//   } catch (error) {
+//     console.error("Failed to accept tasks:", error);
+//     setError("Failed to add tasks to your calendar. Please try again.");
+//   } finally {
+//     setLoading(false);
+//   }
+// };
 
   return (
     <div className="calendar-container">
