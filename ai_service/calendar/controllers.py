@@ -19,15 +19,28 @@ from .services import (
 router = APIRouter()
 
 class AITask(BaseModel):
+    task_id: int = None
     task_name: str
-    task_type: str
     description: str
-    category: str
     priority: str
-    status: str
     estimated_time: int
     due_date: str
+    status: str
+    category: str
+    task_type: str
     parent_task_id: Optional[int]
+    user_id: int
+
+# class AITask(BaseModel):
+#     task_name: str
+#     task_type: str
+#     description: str
+#     category: str
+#     priority: str
+#     status: str
+#     estimated_time: int
+#     due_date: str
+#     parent_task_id: Optional[int]
 
 
 class CalendarAIRequest(BaseModel):
@@ -82,6 +95,7 @@ async def accept_one_task(request: AcceptOneTaskRequest):
         raise HTTPException(status_code=500, detail="Failed to accept task.")
 class AcceptAllTasksRequest(BaseModel):
     user_id: int
+    task: List[AITask]
 
 @router.post("/api/calendar/ai/accept/all")
 async def accept_all_tasks(request: AcceptAllTasksRequest):
@@ -138,15 +152,6 @@ async def generate_suggestions_and_save(request: CalendarSuggestAndSaveRequest):
 from pydantic import BaseModel
 from typing import List
 
-class AITask(BaseModel):
-    task_name: str
-    description: str
-    priority: str
-    estimated_time: int
-    due_date: str
-    status: str = "todo"
-    category: str = "study"
-
 class SessionTasksResponse(BaseModel):
     status: str
     tasks: List[AITask]
@@ -156,6 +161,12 @@ async def get_ai_session_tasks(user_id: int):
     try:
         tasks = await get_session_tasks(user_id)
         logging.info(f"Retrieved {len(tasks)} session tasks for user {user_id}")
+        
+        # Ensure every task has the user_id
+        for task in tasks:
+            if 'user_id' not in task:
+                task['user_id'] = user_id
+        
         return SessionTasksResponse(status="success", tasks=tasks)
     except Exception as e:
         logging.error(f"Error retrieving session tasks: {e}", exc_info=True)

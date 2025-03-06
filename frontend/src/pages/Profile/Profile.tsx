@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import './Profile.css';
 
 interface ProfileData {
-  user_id?: number;
+  user_id?: number | null;
   username?: string;
   ava_url?: string;
   // full_name?: string;
@@ -25,8 +25,10 @@ const Profile = () => {
   const [aboutMe, setAboutMe] = useState('');
   const [learningStyle, setLearningStyle] = useState('Spaced Repetition');
 
-  // Hardcoded user_id for demo purposes - in real app this would come from auth
-  const userId = 1;
+  const [userId, setUserId] = useState<number | null>(() => {
+    const storedUserId = localStorage.getItem("userId");
+    return storedUserId ? parseInt(storedUserId, 10) : null;
+  });
 
   // Fetch profile data when component mounts
   useEffect(() => {
@@ -65,6 +67,12 @@ const Profile = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!userId) {
+      console.warn("No user ID found in localStorage. Some features may not work correctly.");
+    }
+  }, [userId]);
 
   const openPopup = () => {
     // Reset form fields with current profile values
