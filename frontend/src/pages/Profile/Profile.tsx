@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import './Profile.css';
 
 interface ProfileData {
-  user_id?: number;
+  user_id?: number | null;
   username?: string;
   ava_url?: string;
   // full_name?: string;
@@ -25,8 +25,10 @@ const Profile = () => {
   const [aboutMe, setAboutMe] = useState('');
   const [learningStyle, setLearningStyle] = useState('Spaced Repetition');
 
-  // Hardcoded user_id for demo purposes - in real app this would come from auth
-  const userId = 1;
+  const [userId, setUserId] = useState<number | null>(() => {
+    const storedUserId = localStorage.getItem("userId");
+    return storedUserId ? parseInt(storedUserId, 10) : null;
+  });
 
   // Fetch profile data when component mounts
   useEffect(() => {
@@ -65,6 +67,12 @@ const Profile = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!userId) {
+      console.warn("No user ID found in localStorage. Some features may not work correctly.");
+    }
+  }, [userId]);
 
   const openPopup = () => {
     // Reset form fields with current profile values
@@ -130,110 +138,112 @@ const Profile = () => {
   };
 
   return (
-    <div className="profile-container">
-      {/* Left Section */}
-      <div className="left-section">
-        <div className="avatar">
-          <img 
-            id="avatar-img" 
-            src={profile.ava_url || "https://www.w3schools.com/howto/img_avatar.png"} 
-            alt="avatar"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.onerror = null; 
-              target.src = "https://www.w3schools.com/howto/img_avatar.png";
-            }}
-          />
+    <div className="profile-wrapper">
+      <div className="profile-container">
+        {/* Left Section */}
+        <div className="left-section">
+          <div className="avatar">
+            <img 
+              id="avatar-img" 
+              src={profile.ava_url || "https://www.w3schools.com/howto/img_avatar.png"} 
+              alt="avatar"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.onerror = null; 
+                target.src = "https://www.w3schools.com/howto/img_avatar.png";
+              }}
+            />
+          </div>
+          {/* <div className="username" id="username">{profile.username || "Username"}</div> */}
+          <div className="user-id" id="user-id" style={{ display: 'none' }}>{profile.user_id || 0}</div>
         </div>
-        {/* <div className="username" id="username">{profile.username || "Username"}</div> */}
-        <div className="user-id" id="user-id" style={{ display: 'none' }}>{profile.user_id || 0}</div>
-      </div>
-      
-      {/* Right Section */}
-      <div className="right-section">
-        <div className="profile-info">
-          {/* <div><span>Name:</span> <span id="full-name">{isLoading ? "Loading..." : (profile.full_name || "N/A")}</span></div> */}
-          <div className="username" id="username">{profile.username || "Username"}</div>
-          <div><span>Total tasks:</span> <span id="total-tasks">{isLoading ? "Loading..." : (profile.total_tasks || 0)}</span></div>
-          <div><span>Completion rate:</span> <span id="completion-rate">
-            {isLoading ? "Loading..." : (
-              typeof profile.completion_rate === 'number' 
-                ? `${profile.completion_rate}%` 
-                : "0%"
-            )}
-          </span></div>
-          <div><span>Email:</span> <span id="email">{isLoading ? "Loading..." : (profile.email || "N/A")}</span></div>
-          <div><span>About me:</span> <span id="about-me">{isLoading ? "Loading..." : (profile.about_me || "No information available.")}</span></div>
-          <div><span>Learning style:</span> <span id="learning-style">{isLoading ? "Loading..." : (profile.learning_style || "Not specified")}</span></div>
-        </div>
-        <button className="edit-btn" onClick={openPopup} disabled={isLoading}>
-          {isLoading ? 'Loading...' : 'Edit'}
-        </button>
-      </div>
-
-      {/* Popup Form */}
-      {isPopupOpen && (
-        <div id="popup-overlay" className={`popup-overlay ${isPopupOpen ? 'show' : ''}`}>
-          <div className="popup">
-            <h2>Edit Profile</h2>
-            <div className="form-group">
-              <label htmlFor="edit-ava-url">Avatar URL:</label>
-              <input 
-                type="text" 
-                id="edit-ava-url" 
-                placeholder="Enter URL for your profile image"
-                value={avaUrl}
-                onChange={(e) => setAvaUrl(e.target.value)}
-              />
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="edit-about-me">About Me:</label>
-              <textarea 
-                id="edit-about-me" 
-                placeholder="Tell us about yourself"
-                value={aboutMe}
-                onChange={(e) => setAboutMe(e.target.value)}
-              ></textarea>
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="edit-learning-style">Learning Style:</label>
-              <select 
-                id="edit-learning-style"
-                value={learningStyle}
-                onChange={(e) => {
-                  // alert("Change event triggered!"); // Kiểm tra sự kiện có kích hoạt không
-                  // console.log("Selected Learning Style:", e.target.value);
-                  setLearningStyle(e.target.value);
-                }}
-              >
-                <option value="Spaced Repetition">Spaced Repetition</option>
-                <option value="Active Recall">Active Recall</option>
-                <option value="Interleaving">Interleaving</option>
-                <option value="Pomodoro">Pomodoro</option>
-                <option value="Feynman">Feynman</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="edit-password">Password:</label>
-              <input 
-                type="password" 
-                id="edit-password" 
-                placeholder="Enter new password (leave empty to keep current)"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
         
-            <div className="popup-buttons">
-              <button onClick={saveChanges}>Save</button>
-              <button onClick={closePopup}>Cancel</button>
+        {/* Right Section */}
+        <div className="right-section">
+          <div className="profile-info">
+            {/* <div><span>Name:</span> <span id="full-name">{isLoading ? "Loading..." : (profile.full_name || "N/A")}</span></div> */}
+            <div className="username" id="username">{profile.username || "Username"}</div>
+            <div><span>Total tasks:</span> <span id="total-tasks">{isLoading ? "Loading..." : (profile.total_tasks || 0)}</span></div>
+            <div><span>Completion rate:</span> <span id="completion-rate">
+              {isLoading ? "Loading..." : (
+                typeof profile.completion_rate === 'number' 
+                  ? `${profile.completion_rate}%` 
+                  : "0%"
+              )}
+            </span></div>
+            <div><span>Email:</span> <span id="email">{isLoading ? "Loading..." : (profile.email || "N/A")}</span></div>
+            <div><span>About me:</span> <span id="about-me">{isLoading ? "Loading..." : (profile.about_me || "No information available.")}</span></div>
+            <div><span>Learning style:</span> <span id="learning-style">{isLoading ? "Loading..." : (profile.learning_style || "Not specified")}</span></div>
+          </div>
+          <button className="edit-btn" onClick={openPopup} disabled={isLoading}>
+            {isLoading ? 'Loading...' : 'Edit'}
+          </button>
+        </div>
+
+        {/* Popup Form */}
+        {isPopupOpen && (
+          <div id="popup-overlay" className={`popup-overlay ${isPopupOpen ? 'show' : ''}`}>
+            <div className="popup">
+              <h2>Edit Profile</h2>
+              <div className="form-group">
+                <label htmlFor="edit-ava-url">Avatar URL:</label>
+                <input 
+                  type="text" 
+                  id="edit-ava-url" 
+                  placeholder="Enter URL for your profile image"
+                  value={avaUrl}
+                  onChange={(e) => setAvaUrl(e.target.value)}
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="edit-about-me">About Me:</label>
+                <textarea 
+                  id="edit-about-me" 
+                  placeholder="Tell us about yourself"
+                  value={aboutMe}
+                  onChange={(e) => setAboutMe(e.target.value)}
+                ></textarea>
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="edit-learning-style">Learning Style:</label>
+                <select 
+                  id="edit-learning-style"
+                  value={learningStyle}
+                  onChange={(e) => {
+                    // alert("Change event triggered!"); // Kiểm tra sự kiện có kích hoạt không
+                    // console.log("Selected Learning Style:", e.target.value);
+                    setLearningStyle(e.target.value);
+                  }}
+                >
+                  <option value="Spaced Repetition">Spaced Repetition</option>
+                  <option value="Active Recall">Active Recall</option>
+                  <option value="Interleaving">Interleaving</option>
+                  <option value="Pomodoro">Pomodoro</option>
+                  <option value="Feynman">Feynman</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit-password">Password:</label>
+                <input 
+                  type="password" 
+                  id="edit-password" 
+                  placeholder="Enter new password (leave empty to keep current)"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+          
+              <div className="popup-buttons">
+                <button onClick={saveChanges}>Save</button>
+                <button onClick={closePopup}>Cancel</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

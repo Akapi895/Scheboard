@@ -18,7 +18,6 @@ const Chatbot = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // TODO
-  // Hardcoded user_id for demo purposes - in real app this would come from auth
   const [userId] = useState<number | null>(() => {
     const storedUserId = localStorage.getItem("userId");
     return storedUserId ? parseInt(storedUserId, 10) : null;
@@ -161,8 +160,11 @@ const Chatbot = () => {
           
           {isLoading && (
             <div className="message ai loading">
-              <div className="loading-dots">
-                <span>.</span><span>.</span><span>.</span>
+              <div className="loadership_DGJVM">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
               </div>
             </div>
           )}

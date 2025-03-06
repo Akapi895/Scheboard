@@ -19,15 +19,28 @@ from .services import (
 router = APIRouter()
 
 class AITask(BaseModel):
+    task_id: int = None
     task_name: str
-    task_type: str
     description: str
-    category: str
     priority: str
-    status: str
     estimated_time: int
     due_date: str
+    status: str
+    category: str
+    task_type: str
     parent_task_id: Optional[int]
+    user_id: Optional[int] = None  # Changed to be optional with default None
+
+# class AITask(BaseModel):
+#     task_name: str
+#     task_type: str
+#     description: str
+#     category: str
+#     priority: str
+#     status: str
+#     estimated_time: int
+#     due_date: str
+#     parent_task_id: Optional[int]
 
 
 class CalendarAIRequest(BaseModel):
@@ -80,6 +93,7 @@ async def accept_one_task(request: AcceptOneTaskRequest):
     except Exception as e:
         logging.error(f"Error accepting task '{request.task_name}' for user {request.user_id}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to accept task.")
+
 class AcceptAllTasksRequest(BaseModel):
     user_id: int
 
@@ -120,12 +134,10 @@ async def generate_suggestions_and_save(request: CalendarSuggestAndSaveRequest):
         
         # Prepare data for AI
         tasks_as_dict = [t.dict() for t in request.tasks]
-        for task in tasks_as_dict:
-            task['user_id'] = request.user_id  # Add user_id to tasks for session storage
         
         # Build prompt and get AI response
         prompt = f"{request.prompt}\nCurrent mood: {user_mood}\nLearning style: {learning_style}"
-        ai_response = await get_calendar_plan_suggestions(prompt, tasks_as_dict)
+        ai_response = await get_calendar_plan_suggestions(prompt, tasks_as_dict, request.user_id)
         
         return CalendarSuggestAndSaveResponse(
             status="success", 
@@ -138,15 +150,6 @@ async def generate_suggestions_and_save(request: CalendarSuggestAndSaveRequest):
 from pydantic import BaseModel
 from typing import List
 
-class AITask(BaseModel):
-    task_name: str
-    description: str
-    priority: str
-    estimated_time: int
-    due_date: str
-    status: str = "todo"
-    category: str = "study"
-
 class SessionTasksResponse(BaseModel):
     status: str
     tasks: List[AITask]
@@ -156,6 +159,12 @@ async def get_ai_session_tasks(user_id: int):
     try:
         tasks = await get_session_tasks(user_id)
         logging.info(f"Retrieved {len(tasks)} session tasks for user {user_id}")
+        
+        # Ensure every task has the user_id
+        for task in tasks:
+            if 'user_id' not in task:
+                task['user_id'] = user_id
+        
         return SessionTasksResponse(status="success", tasks=tasks)
     except Exception as e:
         logging.error(f"Error retrieving session tasks: {e}", exc_info=True)
