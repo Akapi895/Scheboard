@@ -143,16 +143,21 @@ const Profile = () => {
         {/* Left Section */}
         <div className="left-section">
           <div className="avatar">
-            <img 
-              id="avatar-img" 
-              src={profile.ava_url || "https://www.w3schools.com/howto/img_avatar.png"} 
-              alt="avatar"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.onerror = null; 
-                target.src = "https://www.w3schools.com/howto/img_avatar.png";
-              }}
-            />
+          <img
+            id="avatar-img"
+            src={
+              profile.ava_url 
+                ? `${profile.ava_url}?v=${Date.now()}`
+                : "https://www.w3schools.com/howto/img_avatar.png"
+            }
+            alt="avatar"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.onerror = null; 
+              target.src = "https://www.w3schools.com/howto/img_avatar.png";
+              console.log("Image failed to load:", profile.ava_url);
+            }}
+          />
           </div>
           {/* <div className="username" id="username">{profile.username || "Username"}</div> */}
           <div className="user-id" id="user-id" style={{ display: 'none' }}>{profile.user_id || 0}</div>

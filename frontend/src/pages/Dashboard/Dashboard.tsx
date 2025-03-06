@@ -400,12 +400,12 @@ const Dashboard: React.FC = () => {
 
         {/* Charts Section */}
         <div className="grid grid-cols-2 gap-5 mt-5">
-          {/* Pie Chart - Sử dụng dữ liệu từ API */}
+          {/* Pie Chart - Increase size */}
           <div className="pie">
             <h3 className="text-lg font-semibold mb-2">Task Categories</h3>
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={350}>
               <PieChart>
-                <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
+                <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
                   {pieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
@@ -415,10 +415,10 @@ const Dashboard: React.FC = () => {
             </ResponsiveContainer>
           </div>
 
-          {/* Doughnut Chart - Sử dụng dữ liệu từ API */}
+          {/* Doughnut Chart - Increase size */}
           <div className="doughnut">
             <h3 className="text-lg font-semibold mb-2">Task Progress</h3>
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={350}>
               <PieChart>
                 <Pie 
                   data={donutData} 
@@ -426,8 +426,8 @@ const Dashboard: React.FC = () => {
                   nameKey="name" 
                   cx="50%" 
                   cy="50%" 
-                  innerRadius={40} 
-                  outerRadius={70} 
+                  innerRadius={60} 
+                  outerRadius={100} 
                   fill="#8884d8" 
                   label
                 >
