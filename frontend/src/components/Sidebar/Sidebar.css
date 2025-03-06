@@ -3,44 +3,48 @@ body {
     font-weight: 600;
     color: #06094D;
     font-size: 20px;
-}
-
-.sidebar-container {
+    margin: 0; /* Reset default margin */
+    padding: 0; /* Reset default padding */
+  }
+  
+  .sidebar-container {
+    position: fixed;
     width: 200px;
-    height: 85vh; 
-    background-color: #F4F4F4; 
+    height: 90vh;
+    background-color: #F4F4F4;
     display: flex;
     flex-direction: column;
     padding: 15px 10px 10px;
     border-radius: 30px;
     margin-top: 60px;
     margin-left: 10px;
-}
-
-.sidebar ul {
+    z-index: 1000; /* Ensure the sidebar is on top */
+  }
+  
+  .sidebar ul {
     width: 100%;
     list-style: none;
     padding: 0;
-    margin: 0;    
-}
-
-.sidebar ul li {
+    margin: 0;
+  }
+  
+  .sidebar ul li {
     display: flex;
     align-items: center;
     justify-content: flex-start;
     gap: 10px;
     width: 100%;
-}
-
-.sidebar ul li span {
+  }
+  
+  .sidebar ul li span {
     width: 100%;
     flex-grow: 1;
-}
-
-.sidebar ul li a {
+  }
+  
+  .sidebar ul li a {
     display: flex;
-    text-decoration: none; 
-    color: #06094D; 
+    text-decoration: none;
+    color: #06094D;
     font-weight: bold;
     padding: 10px 5px;
     border-radius: 50px;
@@ -49,39 +53,39 @@ body {
     width: 100%;
     flex-grow: 1;
     white-space: nowrap;
-    overflow: 
+    overflow: hidden;
     text-overflow: ellipsis;
     height: 50px;
-}
-
-.sidebar ul li a .icon {
+  }
+  
+  .sidebar ul li a .icon {
     width: 40px;
     height: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 20px;
-    margin-right: 15px; 
+    margin-right: 15px;
     border-radius: 50%;
     transition: background 0.3s, color 0.3s;
     flex-shrink: 0;
-}
-
-.sidebar ul li a:hover,
-.sidebar ul li a.active {
+  }
+  
+  .sidebar ul li a:hover,
+  .sidebar ul li a.active {
     width: 100%;
-    background-color: #06094D; 
+    background-color: #06094D;
     color: white;
-}
-
-.sidebar ul li a:hover .icon,
-.sidebar ul li a.active .icon {
+  }
+  
+  .sidebar ul li a:hover .icon,
+  .sidebar ul li a.active .icon {
     background-color: white;
     color: #06094D;
     border-radius: 50%; /* Ensure the icon background is rounded */
-}
-
-.sidebar .main-task {
+  }
+  
+  .sidebar .main-task {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -93,46 +97,52 @@ body {
     margin: 20px 0;
     padding: 15px 0;
     width: 100%;
-}
-
-/* Tạo 2 dòng kẻ trên và dưới */
-.sidebar .main-task::before,
-.sidebar .main-task::after {
+  }
+  
+  /* Tạo 2 dòng kẻ trên và dưới */
+  .sidebar .main-task::before,
+  .sidebar .main-task::after {
     content: "";
     position: absolute;
     left: 0;
     width: 100%; /* Độ dài của đường kẻ */
     height: 2px; /* Độ dày của đường kẻ */
     background-color: #06094D; /* Màu của đường kẻ */
-}
-
-.sidebar .main-task::before {
-    top: 0; 
-}
-
-.sidebar .main-task::after {
-    bottom: 0; 
-}
-
-.sidebar .logout {
+  }
+  
+  .sidebar .main-task::before {
+    top: 0;
+  }
+  
+  .sidebar .main-task::after {
+    bottom: 0;
+  }
+  
+  .sidebar .logout {
     margin-top: 100px;
-}
-
-.main-tasks-list {
-   display: block;
+  }
+  
+  .main-tasks-list {
+    display: block;
     width: 100%;
-}
-
-.task-name {
+  }
+  
+  .task-name {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
     color: #06094D;
     font-size: 14px;
-}
-
-.task-name:hover {
+  }
+  
+  .task-name:hover {
     color: #ffffff;
     background-color: #06094D;
     border-radius: 8px;
-}
+  }
+  
+  /* Ensure main content does not overlap with sidebar */
+  .main-content {
+    margin-left: 220px; /* Width of sidebar + 10px gap */
+    padding: 10px; /* Optional padding for main content */
+  }

@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSmile, faMeh, faFrown, faTired, faAngry } from "@fortawesome/free-solid-svg-icons";
 import { Search } from "lucide-react";
 import { Link } from "react-router-dom";
+import TaskTable from "../../components/task_table/task_table";
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
@@ -27,6 +28,13 @@ const Dashboard: React.FC = () => {
     { day: "Friday", tasks: 2 },
     { day: "Saturday", tasks: 3 },
     { day: "Sunday", tasks: 9 },
+  ];
+
+  // Dữ liệu mẫu cho tasks
+  const tasks = [
+    { id: 1, name: "Task 1", description: "Description 1", priority: "High", deadline: "2025-03-06 10:00" },
+    { id: 2, name: "Task 2", description: "Description 2", priority: "Medium", deadline: "2025-03-07 12:00" },
+    { id: 3, name: "Task 3", description: "Description 3", priority: "Low", deadline: "2025-03-08 14:00" },
   ];
 
   useEffect(() => {
@@ -125,6 +133,9 @@ const Dashboard: React.FC = () => {
             </ResponsiveContainer>
           </div>
         </div>
+
+        {/* Task Table */}
+        <TaskTable tasks={tasks} />
       </div>
     </div>
   );
