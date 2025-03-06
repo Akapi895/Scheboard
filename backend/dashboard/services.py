@@ -90,7 +90,13 @@ async def get_piechart_data(user_id: int) -> dict:
 
         total_tasks = sum(task[1] for task in tasks)
         if total_tasks == 0:
-            raise Exception("No completed tasks found")
+            # Trả về giá trị mặc định nếu không có task
+            return {
+                "study_percent": 25,
+                "work_percent": 25,
+                "health_percent": 25,
+                "leisure_percent": 25
+            }
 
         piechart_data = {
             "study_percent": 0,
@@ -99,10 +105,12 @@ async def get_piechart_data(user_id: int) -> dict:
             "leisure_percent": 0
         }
 
+        # Tính phần trăm cho ba loại đầu tiên
         for task in tasks:
-            category = task[0]
+            category = task[0].lower() if task[0] else "other"
             count = task[1]
-            percent = (count / total_tasks) * 100
+            percent = round((count / total_tasks) * 100, 1)  # Làm tròn đến 2 chữ số thập phân
+            
             if category == "study":
                 piechart_data["study_percent"] = percent
             elif category == "work":
@@ -111,6 +119,21 @@ async def get_piechart_data(user_id: int) -> dict:
                 piechart_data["health_percent"] = percent
             elif category == "leisure":
                 piechart_data["leisure_percent"] = percent
+
+        # Tính leisure bằng phần còn lại để đảm bảo tổng bằng 100%
+        total_other_categories = piechart_data["study_percent"] + piechart_data["work_percent"] + piechart_data["health_percent"]
+        piechart_data["leisure_percent"] = round(100 - total_other_categories, 2)
+        
+        # Xử lý trường hợp đặc biệt nếu leisure < 0 do lỗi làm tròn
+        if piechart_data["leisure_percent"] < 0:
+            piechart_data["leisure_percent"] = 0
+            
+        # Đảm bảo tổng chính xác là 100% (điều chỉnh giá trị lớn nhất nếu cần)
+        total = sum(piechart_data.values())
+        if total != 100:
+            # Tìm giá trị lớn nhất để điều chỉnh
+            max_category = max(piechart_data, key=piechart_data.get)
+            piechart_data[max_category] += round(100 - total, 1)
 
         return piechart_data
     
