@@ -6,37 +6,45 @@
 }
 
 .profile-container {
+    width: 90%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
     display: flex;
-    width: 600px;
-    margin: 20px auto;
-    padding: 20px;
-    border: 2px solid #d00000;
-    border-radius: 10px;
     background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 2rem;
 }
 
 .left-section {
-    width: 40%;
-    text-align: center;
-    padding-right: 20px;
-    border-right: 2px solid #d00000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 1rem;
+    width: 30%;
 }
 
+
 .avatar img {
-    width: 100px;
-    height: 100px;
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
     border: 3px solid #d00000;
 }
 
 .username {
+    font-size: 60rem;
     font-weight: bold;
-    margin-top: 10px;
+    margin-bottom: 6rem;
+    text-align: center;
+    color: #222;
 }
 
 .right-section {
-    width: 60%;
-    padding-left: 20px;
+    flex: 1;
+    padding: 1rem, 2rem;
 }
 
 .profile-info div {
@@ -177,4 +185,33 @@
 
 .popup-buttons button:last-child:hover {
     background-color: #d32f2f;
+}
+
+.profile-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.content-authenticated .profile-wrapper {
+  position: relative;
+  min-height: 100%;
+}
+
+.content-authenticated .profile-container {
+  width: 90%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

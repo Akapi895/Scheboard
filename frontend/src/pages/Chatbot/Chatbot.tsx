@@ -160,8 +160,11 @@ const Chatbot = () => {
           
           {isLoading && (
             <div className="message ai loading">
-              <div className="loading-dots">
-                <span>.</span><span>.</span><span>.</span>
+              <div className="loadership_DGJVM">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
               </div>
             </div>
           )}
