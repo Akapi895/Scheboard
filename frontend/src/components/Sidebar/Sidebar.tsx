@@ -156,37 +156,32 @@ const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
             </Link>
           </li>
           <li className="main-task">
-          <div className="main-task-header" onClick={toggleMainTasks}>
-            <hr />
-            <span>MAIN TASKS</span>
-            <hr />
-          </div>
+  <div className="main-task-header" onClick={toggleMainTasks}>
+    <hr />
+    <span>MAIN TASKS</span>
+    <hr />
+  </div>
 
-          {/* Danh sách main tasks xuất hiện bên dưới */}
-
-          {/* chưa fix */}
-          {showMainTasks && mainTasks.length > 0 && (
-            <div className="main-tasks-list">
-              {loading ? (
-                <div className="loading">Loading...</div>
-              ) : mainTasks && mainTasks.length > 0 ? (
-                mainTasks.map((task) => (
-                  <Link 
-                    key={task.task_id} 
-                    to={`/tasks/${task.task_id}`}
-                    className="main-task-item"
-                  >
-                    <span className="task-name">{task.task_name}</span>
-                  </Link>
-                ))
-              ) : (
-                <div className="no-tasks"></div>
-              )}
-            </div>
-          )}
-        </li>
-
-
+  {showMainTasks && (
+    <div className="main-tasks-list">
+      {loading ? (
+        <div className="loading">Loading...</div>
+      ) : mainTasks.length > 0 ? (
+        mainTasks.map((task) => (
+          <Link 
+            key={task.task_id} 
+            to={`/tasks/${task.task_id}`}
+            className="main-task-item"
+          >
+            <span className="task-name">{task.task_name}</span>
+          </Link>
+        ))
+      ) : (
+        <div className="no-tasks">No tasks available</div>
+      )}
+    </div>
+  )}
+  </li> 
           <li>
           <Link to="/profile">
               <span className="icon">

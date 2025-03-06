@@ -19,7 +19,7 @@ async def change_mood(mood_change_request: MoodChangeRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/api/dashboard", response_model=DashboardResponse)
+@router.post("/api/dashboard", response_model=DashboardResponse)
 async def get_dashboard(dashboard_request: DashboardRequest):
     try:
         dashboard_data = await get_dashboard_data(dashboard_request.user_id)   
@@ -28,7 +28,7 @@ async def get_dashboard(dashboard_request: DashboardRequest):
         raise HTTPException(status_code=404, detail=str(e))
 
 ### Chart 
-@router.get("/api/dashboard/barchart", response_model=ChartResponse)
+@router.post("/api/dashboard/barchart", response_model=ChartResponse)
 async def get_barchart(barchart_request: ChartRequest):
     try:
         barchart_data = await get_barchart_data(barchart_request.user_id)
@@ -36,7 +36,7 @@ async def get_barchart(barchart_request: ChartRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
-@router.get("/api/dashboard/piechart", response_model=ChartResponse)
+@router.post("/api/dashboard/piechart", response_model=ChartResponse)
 async def get_barchart(piechart: ChartRequest):
     try:
         piechart_data = await get_piechart_data(piechart.user_id)
@@ -44,7 +44,7 @@ async def get_barchart(piechart: ChartRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
-@router.get("/api/dashboard/donutchart", response_model=ChartResponse)
+@router.post("/api/dashboard/donutchart", response_model=ChartResponse)
 async def get_donutchart(donutchart: ChartRequest):
     try:
         donutchart_data = await get_donutchart_data(donutchart.user_id)
@@ -69,7 +69,7 @@ async def complete_task_endpoint(delete_task_request: DelComTaskRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/api/dashboard/upcoming/detail", response_model=DashboardResponse)
+@router.post("/api/dashboard/upcoming/detail", response_model=DashboardResponse)
 async def detail_task_endpoint(delete_task_request: DelComTaskRequest):
     try:
         detail_data = await detail_task(delete_task_request.user_id, delete_task_request.task_id)
@@ -85,7 +85,7 @@ async def edit_task_endpoint(edit_task_request: EditTaskRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
-@router.get("/api/dashboard/upcoming/overall", response_model=UpcomingTaskResponse)
+@router.post("/api/dashboard/upcoming/overall", response_model=UpcomingTaskResponse)
 async def get_upcoming_task(upcoming_request: DashboardRequest):
     try:
         overall_task = await upcoming_task(upcoming_request.user_id)
