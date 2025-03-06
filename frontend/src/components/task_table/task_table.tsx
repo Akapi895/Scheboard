@@ -17,18 +17,18 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks }) => {
   return (
     <div className="task-table-container">
       <h2>Upcoming Tasks</h2>
-      <table className="task-table">
-        <thead>
-          <tr>
-            <th>Check</th>
-            <th>Task</th>
-            <th>Description</th>
-            <th>Priority</th>
-            <th>Deadline</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tasks.map(task => (
+      {tasks.map((task, index) => (
+        <table className="task-table" key={index}>
+          <thead>
+            <tr>
+              <th>Check</th>
+              <th>Task</th>
+              <th>Description</th>
+              <th>Priority</th>
+              <th>Deadline</th>
+            </tr>
+          </thead>
+          <tbody>
             <tr key={task.id}>
               <td><input type="checkbox" /></td>
               <td>{task.name}</td>
@@ -36,9 +36,9 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks }) => {
               <td>{task.priority}</td>
               <td>{task.deadline}</td>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      ))}
     </div>
   );
 };
