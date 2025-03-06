@@ -21,10 +21,8 @@ instructions_path = os.path.join(
 session_tasks = {}
 session_lock = asyncio.Lock()
 
-async def get_calendar_plan_suggestions(prompt: str, tasks: List[dict]) -> str:
+async def get_calendar_plan_suggestions(prompt: str, tasks: List[dict], user_id: int) -> str:
     tasks_text = ""
-    # User ID from tasks (assuming all have the same user ID)
-    user_id = tasks[0].get('user_id') if tasks and len(tasks) > 0 else None
     
     for t in tasks:
         tasks_text += (
@@ -54,11 +52,13 @@ async def get_calendar_plan_suggestions(prompt: str, tasks: List[dict]) -> str:
     
     # Extract tasks from response and save to session
     extracted_tasks = await extract_tasks_from_response(response, user_id)
+    print(extracted_tasks)
     
     # Save extracted tasks to session
     if user_id is not None:
+        print(user_id)
         await save_session_tasks(user_id, extracted_tasks)
-        await save_all_session_tasks(user_id) #mtran hiện hồn đi 
+    # await save_all_session_tasks(user_id) #mtran hiện hồn đi 
     
     # Remove JSON blocks from response
     cleaned_response = re.sub(r"```json\s*\{.*?\}\s*```", "", response, flags=re.DOTALL)
