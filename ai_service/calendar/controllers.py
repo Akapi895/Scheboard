@@ -29,7 +29,7 @@ class AITask(BaseModel):
     category: str
     task_type: str
     parent_task_id: Optional[int]
-    user_id: int
+    user_id: Optional[int] = None  # Changed to be optional with default None
 
 # class AITask(BaseModel):
 #     task_name: str
@@ -93,9 +93,9 @@ async def accept_one_task(request: AcceptOneTaskRequest):
     except Exception as e:
         logging.error(f"Error accepting task '{request.task_name}' for user {request.user_id}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to accept task.")
+
 class AcceptAllTasksRequest(BaseModel):
     user_id: int
-    task: List[AITask]
 
 @router.post("/api/calendar/ai/accept/all")
 async def accept_all_tasks(request: AcceptAllTasksRequest):
@@ -134,12 +134,10 @@ async def generate_suggestions_and_save(request: CalendarSuggestAndSaveRequest):
         
         # Prepare data for AI
         tasks_as_dict = [t.dict() for t in request.tasks]
-        for task in tasks_as_dict:
-            task['user_id'] = request.user_id  # Add user_id to tasks for session storage
         
         # Build prompt and get AI response
         prompt = f"{request.prompt}\nCurrent mood: {user_mood}\nLearning style: {learning_style}"
-        ai_response = await get_calendar_plan_suggestions(prompt, tasks_as_dict)
+        ai_response = await get_calendar_plan_suggestions(prompt, tasks_as_dict, request.user_id)
         
         return CalendarSuggestAndSaveResponse(
             status="success", 
