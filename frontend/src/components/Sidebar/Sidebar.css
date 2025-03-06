@@ -122,27 +122,78 @@ body {
     margin-top: 100px;
   }
   
-  .main-tasks-list {
-    display: block;
-    width: 100%;
+  .main-tasks-container {
+    margin-left: 10px;
   }
   
-  .task-name {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
+  .main-tasks {
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .task-list {
+    max-height: 200px; /* Adjust as needed */
+    overflow-y: auto;
+    padding-left: 0;
+  }
+  
+  .task-item {
+    white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 5px 0;
+    cursor: pointer;
+    font-size: 10px; /* Smaller font size for task items */
+  }
+  
+  .task-item:hover {
+    text-decoration: underline;
+  }
+  /* ...existing code... */
+
+.main-task-header {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .main-tasks-list {
+    max-height: 200px; /* Adjust as needed */
+    overflow-y: auto;
+    margin-top: 10px;
+  }
+  
+  .main-task-item {
+    display: block;
+    padding: 5px 10px;
+    text-decoration: none;
     color: #06094D;
-    font-size: 14px;
+    font-size: 10px; /* Smaller font size for task items */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: 5px;
+    transition: background-color 0.3s;
   }
   
-  .task-name:hover {
-    color: #ffffff;
-    background-color: #06094D;
-    border-radius: 8px;
+  .main-task-item:hover {
+    background-color: #e2e6ea;
+    text-decoration: underline;
   }
   
-  /* Ensure main content does not overlap with sidebar */
-  .main-content {
-    margin-left: 220px; /* Width of sidebar + 10px gap */
-    padding: 10px; /* Optional padding for main content */
+  .loading {
+    text-align: center;
+    padding: 10px;
   }
+  
+  .no-tasks {
+    text-align: center;
+    padding: 10px;
+    color: #888;
+  }
+  
+  /* ...existing code... */
