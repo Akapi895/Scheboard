@@ -213,10 +213,10 @@ const Dashboard: React.FC = () => {
         // API trả về { completed: 30, inprogress: 45, todo: 25 }
         // Chuyển đổi thành định dạng mà recharts có thể sử dụng
         const formattedData = [
-          { name: "Completed", value: result.data.completed || 0, color: "#4CAF50" },
-          { name: "In Progress", value: result.data.inprogress || 0, color: "#FFC107" },
-          { name: "Todo", value: result.data.todo || 0, color: "#2196F3" },
-        ];
+          { name: "Completed", value: Number((result.data.completed || 0).toFixed(1)), color: "#4CAF50" },
+          { name: "In Progress", value: Number((result.data.inprogress || 0).toFixed(1)), color: "#FFC107" },
+          { name: "Todo", value: Number((result.data.todo || 0).toFixed(1)), color: "#2196F3" },
+        ];        
         
         setDonutData(formattedData);
         console.log("Donut chart data loaded:", formattedData);
