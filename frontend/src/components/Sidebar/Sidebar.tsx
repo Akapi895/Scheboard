@@ -75,6 +75,11 @@ const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
     setShowMainTasks(!showMainTasks);
   };
 
+  // Hàm xử lý khi nhấp vào một task
+  const handleTaskClick = (task: Task) => {
+    setSelectedTask(task);
+  };
+  
   const handleLogout = async () => {
     try {
       // Gọi API để xóa session ở server
