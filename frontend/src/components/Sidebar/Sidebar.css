@@ -86,19 +86,20 @@
     }
     
   .sidebar .main-task {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      text-align: center;
-      color: #06094D;
-      font-weight: bold;
-      font-size: 20px;
-      margin: 20px 0;
-      padding: 15px 0;
-      width: 100%;
-    }
-    
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    color: #06094D;
+    font-weight: bold;
+    margin: 15px 0;
+    padding: 10px 0;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 20px;
+  }
+  
   .sidebar .main-task::before,
   .sidebar .main-task::after {
       content: "";
@@ -150,45 +151,73 @@
       text-decoration: underline;
     }
 
-  .main-task-header {
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    
-    .main-tasks-list {
-      max-height: 200px; /* Adjust as needed */
-      overflow-y: auto;
-      margin-top: 10px;
-    }
-    
+.main-task-header {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+    width: 100%;
+    /* padding: 5px 0; */
+    position: relative;
+  }
+
+  .main-task-header::before,
+  .main-task-header::after {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #06094D;
+  }
+
+  .main-task-header::before {
+    top: -10px;
+  }
+  
+  .main-task-header::after {
+    bottom: -10px;
+  }
+  
+  .main-tasks-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 350px; 
+    overflow-y: auto;
+    margin-top: 10px;
+    width: 100%;
+    padding: 0 5px;
+  }
+  
   .main-task-item {
-      display: block;
-      padding: 5px 10px;
-      text-decoration: none;
-      color: #06094D;
-      font-size: 10px; /* Smaller font size for task items */
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      border-radius: 5px;
-      transition: background-color 0.3s;
-    }
-    
+    display: block;
+    padding: 8px 10px;
+    text-decoration: none;
+    color: #06094D;
+    font-size: 14px; /* Smaller font size for task items */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    transition: background-color 0.3s;
+  }
+  
   .main-task-item:hover {
-      background-color: #e2e6ea;
-      text-decoration: underline;
-    }.loading {
-      text-align: center;
-      padding: 10px;
-    }
-    
+    background-color: #e2e6ea;
+    text-decoration: underline;
+  }
+  
+  .loading {
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+  }
+  
   .no-tasks {
-      text-align: center;
-      padding: 10px;
-      color: #888;
-    }
-    
+    text-align: center;
+    padding: 10px;
+    color: #888;
+    font-size: 14px;
+  }

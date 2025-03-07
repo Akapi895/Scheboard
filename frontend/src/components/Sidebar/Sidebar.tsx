@@ -160,33 +160,33 @@ const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
               <span className="title">Chatbot</span>
             </Link>
           </li>
-          <li className="main-task">
-  <div className="main-task-header" onClick={toggleMainTasks}>
-    <hr />
-    <span>MAIN TASKS</span>
-    <hr />
-  </div>
 
-  {showMainTasks && (
-    <div className="main-tasks-list">
-      {loading ? (
-        <div className="loading">Loading...</div>
-      ) : mainTasks.length > 0 ? (
-        mainTasks.map((task) => (
-          <Link 
-            key={task.task_id} 
-            to={`/tasks/${task.task_id}`}
-            className="main-task-item"
-          >
-            <span className="task-name">{task.task_name}</span>
-          </Link>
-        ))
-      ) : (
-        <div className="no-tasks">No tasks available</div>
-      )}
-    </div>
-  )}
-  </li> 
+          <li className="main-task">
+          <div className="main-task-header" onClick={toggleMainTasks}>
+            <span>MAIN TASKS</span>
+          </div>
+
+          {showMainTasks && (
+            <div className="main-tasks-list">
+              {loading ? (
+                <div className="loading">Loading...</div>
+              ) : mainTasks.length > 0 ? (
+                mainTasks.map((task) => (
+                  <Link 
+                    key={task.task_id} 
+                    to={`/tasks/${task.task_id}`}
+                    className="main-task-item"
+                  >
+                    <span className="task-name">{task.task_name}</span>
+                  </Link>
+                ))
+              ) : (
+                <div className="no-tasks">No tasks available</div>
+              )}
+            </div>
+          )}
+        </li>
+
           <li>
           <Link to="/profile">
               <span className="icon">
