@@ -363,7 +363,7 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="dashboard-container flex min-h-screen bg-gray-100">
       <div className="flex-1 p-5">
         <div className="flex justify-between items-center">
           <div className="relative">
@@ -472,7 +472,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Task Table - Giữ nguyên dữ liệu hardcoded */}
-        <h3 id="todays-tasks-section" className="text-lg font-semibold mt-5 mb-2">Today's Tasks</h3>
+        <h2 id="todays-tasks-section" className="text-lg font-semibold mt-5 mb-2 upcoming-tasks">Upcoming Tasks</h2>
         <TaskTable 
           tasks={tasks.map(task => ({
             id: task.task_id,

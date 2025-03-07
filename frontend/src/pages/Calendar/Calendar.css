@@ -11,6 +11,11 @@
   margin-left: 200px; /* Offset by the width of the sidebar */
   max-width: none; /* Remove max-width constraint */
   margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.content-authenticated {
+  margin-left: 17px !important;  /* Width of sidebar + 10px gap */
 }
 
 .calendar-header {
@@ -37,12 +42,6 @@
   padding: 5px 10px;
   cursor: pointer;
   border-radius: 4px;
-}
-
-.today-btn:hover,
-.prev-week-btn:hover,
-.next-week-btn:hover {
-  background-color: #eee;
 }
 
 .month-title {
