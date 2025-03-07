@@ -7,6 +7,7 @@ import Sidebar from './components/Sidebar/Sidebar';
 import Login from './pages/Login/login';
 import Register from './pages/Register/register';
 import Dashboard from './pages/Dashboard/Dashboard';
+import MainTasks from './pages/MainTasks/MainTasks'; // File hiển thị Tasks & Subtasks
 import './App.css';
 
 function App() {
@@ -62,9 +63,12 @@ function App() {
   return (
     <Router>
       <div className="app">
+        {/* Nếu đăng nhập, hiển thị sidebar */}
         {isAuthenticated && <Sidebar onLogout={handleLogout} />}
+        
         <div className={`content ${isAuthenticated ? 'content-authenticated' : ''}`}>
           <Routes>
+            {/* Đăng nhập / Đăng ký */}
             <Route 
               path="/login" 
               element={
@@ -77,6 +81,8 @@ function App() {
                 isAuthenticated ? <Navigate to="/dashboard" /> : <Register />
               }
             />
+
+            {/* Các trang yêu cầu đăng nhập */}
             <Route 
               path="/dashboard" 
               element={
@@ -95,6 +101,19 @@ function App() {
               path="/calendar" 
               element={isAuthenticated ? <Calendar /> : <Navigate to="/login" />}
             />
+
+            {/* Route cho danh sách Tasks (MainTasks) */}
+            <Route
+              path="/tasks"
+              element={isAuthenticated ? <MainTasks /> : <Navigate to="/login" />}
+            />
+            {/* Route cho Subtasks của 1 Task */}
+            <Route
+              path="/tasks/:taskId"
+              element={isAuthenticated ? <MainTasks /> : <Navigate to="/login" />}
+            />
+
+            {/* Trang gốc / */}
             <Route 
               path="/" 
               element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />}
