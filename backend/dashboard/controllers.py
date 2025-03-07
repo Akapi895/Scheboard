@@ -52,7 +52,7 @@ async def get_donutchart(donutchart: ChartRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-### Upcoming Task   
+### Upcoming Task
 @router.delete("/api/dashboard/upcoming/delete", response_model=DelComTaskResponse)
 async def delete_task_endpoint(delete_task_request: DelComTaskRequest):
     try:

@@ -16,7 +16,7 @@ interface TaskTableProps {
 const TaskTable: React.FC<TaskTableProps> = ({ tasks }) => {
   return (
     <div className="task-table-container">
-      <h2>Upcoming Tasks</h2>
+      {/* <h2>Upcoming Tasks</h2> */}
       {tasks.length === 0 ? (
         <div className="no-tasks-message">
           No tasks scheduled for today!

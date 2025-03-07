@@ -150,7 +150,7 @@ async def get_donutchart_data(user_id: int) -> dict:
 
         total_tasks = len(tasks)
         if total_tasks == 0:
-            return {"completed": 0, "inprogress": 0, "todo": 0}
+            return {"completed": 33, "inprogress": 33, "todo": 34}
 
         donutchart_data = {"completed": 0, "inprogress": 0, "todo": 0}
 
@@ -167,11 +167,11 @@ async def get_donutchart_data(user_id: int) -> dict:
 
         for key in donutchart_data:
             donutchart_data[key] = round((donutchart_data[key] / total_tasks) * 100, 1)
-            
-        total_percentage = sum(donutchart_data.values())
-        if total_percentage != 100:
-            difference = 100 - total_percentage
-            donutchart_data["completed"] += difference
+
+        sum_percent = sum(donutchart_data.values())
+        if sum_percent != 100:
+            max_category = max(donutchart_data, key=donutchart_data.get)
+            donutchart_data[max_category] += 100 - sum_percent
 
         return donutchart_data
 
