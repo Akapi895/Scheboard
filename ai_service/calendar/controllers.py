@@ -2,6 +2,7 @@ import logging
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from typing import List, Optional
+import datetime
 from .services import (
     extract_tasks_from_response,
     extract_tasks_from_response,
@@ -134,9 +135,9 @@ async def generate_suggestions_and_save(request: CalendarSuggestAndSaveRequest):
         
         # Prepare data for AI
         tasks_as_dict = [t.dict() for t in request.tasks]
-        
         # Build prompt and get AI response
-        prompt = f"{request.prompt}\nCurrent mood: {user_mood}\nLearning style: {learning_style}"
+        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        prompt = f"{request.prompt}\nTâm trạng hiện tại: {user_mood}\nPhong cách học tập: {learning_style}\nNgày giờ hiện tại: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
         ai_response = await get_calendar_plan_suggestions(prompt, tasks_as_dict, request.user_id)
         
         return CalendarSuggestAndSaveResponse(
