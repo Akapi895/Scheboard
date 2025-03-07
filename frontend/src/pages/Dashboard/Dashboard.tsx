@@ -355,6 +355,13 @@ const Dashboard: React.FC = () => {
     { name: "Angry", icon: <FontAwesomeIcon icon={faAngry} />, className: "angry" },
   ];
 
+  const scrollToTodaysTasks = () => {
+    const tasksSection = document.getElementById('todays-tasks-section');
+    if (tasksSection) {
+      tasksSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       <div className="flex-1 p-5">
@@ -370,7 +377,7 @@ const Dashboard: React.FC = () => {
             <h3 className="text-xl font-bold text-blue-900">Total Projects</h3>
             <p className="text-2xl">{dashboardData?.total_main_task || 0}</p>
           </div>
-          <div className="today">
+          <div className="today" onClick={scrollToTodaysTasks} style={{ cursor: 'pointer' }}>
             <h3 className="text-xl font-bold text-blue-900">Today's Tasks</h3>
             <p className="text-2xl">{dashboardData?.today_task_cnt || 0}</p>
           </div>
@@ -398,64 +405,74 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Charts Section */}
+        {/* Charts Section - Reorganized Layout */}
         <div className="grid grid-cols-2 gap-5 mt-5">
-          {/* Pie Chart - Sử dụng dữ liệu từ API */}
-          <div className="pie">
-            <h3 className="text-lg font-semibold mb-2">Task Categories</h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value) => `${value}%`} />
-              </PieChart>
-            </ResponsiveContainer>
+          {/* Left Section - Stacked Charts */}
+          <div className="charts-left-column flex flex-col gap-5">
+            {/* Pie Chart */}
+            <div className="pie">
+              <h3 className="text-lg font-semibold mb-2">Task Categories</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label>
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => `${value}%`} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            
+            {/* Doughnut Chart */}
+            <div className="doughnut">
+              <h3 className="text-lg font-semibold mb-2">Task Progress</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie 
+                    data={donutData} 
+                    dataKey="value" 
+                    nameKey="name" 
+                    cx="50%" 
+                    cy="50%" 
+                    innerRadius={50} 
+                    outerRadius={90} 
+                    fill="#8884d8" 
+                    label
+                  >
+                    {donutData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => {
+                    // Check if value is a number before calling toFixed
+                    return typeof value === 'number' 
+                      ? `${value.toFixed(1)}%` 
+                      : `${value}%`;
+                  }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
-          {/* Doughnut Chart - Sử dụng dữ liệu từ API */}
-          <div className="doughnut">
-            <h3 className="text-lg font-semibold mb-2">Task Progress</h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie 
-                  data={donutData} 
-                  dataKey="value" 
-                  nameKey="name" 
-                  cx="50%" 
-                  cy="50%" 
-                  innerRadius={40} 
-                  outerRadius={70} 
-                  fill="#8884d8" 
-                  label
-                >
-                  {donutData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value) => `${value.toFixed(1)}%`} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Bar Chart - Sử dụng dữ liệu từ API */}
-          <div className="col-span-2 bar">
-            <h3 className="text-lg font-semibold mb-2">Tasks Completed This Week</h3>
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={barChart}>
-                <XAxis dataKey="day" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="tasks" fill="#0D1F80" />
-              </BarChart>
-            </ResponsiveContainer>
+          {/* Right Section - Bar Chart */}
+          <div className="charts-right-column">
+            <div className="bar h-full">
+              <h3 className="text-lg font-semibold mb-2">Tasks Completed This Week</h3>
+              <ResponsiveContainer width="100%" height={580}>
+                <BarChart data={barChart}>
+                  <XAxis dataKey="day" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="tasks" fill="#0D1F80" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
 
         {/* Task Table - Giữ nguyên dữ liệu hardcoded */}
-        <h3 className="text-lg font-semibold mt-5 mb-2">Today's Tasks</h3>
+        <h3 id="todays-tasks-section" className="text-lg font-semibold mt-5 mb-2">Today's Tasks</h3>
         <TaskTable 
           tasks={tasks.map(task => ({
             id: task.task_id,
