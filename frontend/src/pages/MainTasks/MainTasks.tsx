@@ -1,30 +1,119 @@
-import React from 'react';
-import TaskTable from '../../components/task_table/task_table';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import TaskTable from "../../components/task_table/task_table";
 import './MainTasks.css';
 
-const MainTasks: React.FC = () => {
-  // Dữ liệu mẫu cho tasks
-  const tasks = [
-    { id: 1, name: "Task 1", description: "Description 1", priority: "High", deadline: "2025-03-06 10:00" },
-    { id: 2, name: "Task 2", description: "Description 2", priority: "Medium", deadline: "2025-03-07 12:00" },
-    { id: 3, name: "Task 3", description: "Description 3", priority: "Low", deadline: "2025-03-08 14:00" },
-  ];
+interface Task {
+  task_id: number;
+  task_name: string;
+}
 
-  // Giả sử có nhiều assignment
-  const assignments = [
-    { id: 1, tasks },
-    { id: 2, tasks },
-    { id: 3, tasks },
-  ];
+interface MainTaskData {
+  main_task: Task;
+  task: Task[];
+}
+
+const MainTasks: React.FC = () => {
+  const navigate = useNavigate();
+  const { maintaskId } = useParams<{ maintaskId: string }>()
+
+  const [mainTaskData, setMainTaskData] = useState<MainTaskData | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<number | null>(() => {
+    const storedUserId = localStorage.getItem('userId');
+    return storedUserId ? parseInt(storedUserId, 10) : null;
+  });
+
+  useEffect(() => {
+    if (!userId) {
+      navigate('/login');
+      return;
+    }
+    fetchMainTaskData();
+  }, [userId, navigate, maintaskId]);
+
+  const fetchMainTaskData = async () => {
+    try {
+      console.log("Fetching main tasks for user:", userId);
+      
+      const response = await fetch('http://127.0.0.1:8000/api/main-tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          main_task_id: maintaskId
+        }),
+      });
+
+      console.log("main tasks API response status:", response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`API error (${response.status}):`, errorText);
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("main tasks API result:", result);
+
+      // Check for the proper response format - changed from Array check to object check
+      if (result.status === 'success' && result.data && result.data.task) {
+        setMainTaskData(result.data);
+        // Set the tasks state with the subtasks from the response
+        setTasks(result.data.task || []);
+        console.log("main tasks loaded:", result.data);
+      } else {
+        console.error("Failed to fetch main tasks:", result.message || "Invalid data format");
+        // Set fallback data
+        const fallbackData = {
+          main_task: { 
+            task_id: 1, 
+            task_name: "No tasks" 
+          },
+          task: []
+        };
+        setMainTaskData(fallbackData);
+        setTasks([]); // Empty tasks array when there's an error
+      }
+    } catch (error) {
+      console.error("Error fetching main tasks:", error);
+      // Set fallback data
+      const fallbackData = {
+        main_task: { 
+          task_id: 1, 
+          task_name: "No tasks" 
+        },
+        task: []
+      };
+      setMainTaskData(fallbackData);
+      setTasks([]); // Empty tasks array when there's an error
+    } finally {
+      // Always set loading to false when done, whether successful or not
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="main-tasks-container">
-      {assignments.map(assignment => (
-        <div key={assignment.id} className="assignment">
-          <h2>Assignment {assignment.id}</h2>
-          <TaskTable tasks={assignment.tasks} />
-        </div>
-      ))}
+      {loading ? (
+        <div className="loading">Loading...</div>
+      ) : (
+        <>
+          <h1 className="main-task-title">{mainTaskData?.main_task?.task_name || "Main Task"}</h1>
+          <TaskTable 
+            tasks={tasks.map(task => ({
+              id: task.task_id,
+              name: task.task_name,
+              description: "",
+              priority: "medium",
+              deadline: ""
+            }))}
+          />
+        </>
+      )}
     </div>
   );
 };

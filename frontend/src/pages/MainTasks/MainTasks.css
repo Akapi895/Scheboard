@@ -1,11 +1,190 @@
 .main-tasks-container {
-    padding: 20px;
-  }
-  
-  .assignment {
-    margin-bottom: 20px;
-  }
-  
-  .assignment h2 {
-    margin-bottom: 10px;
-  }
+  padding: 20px;
+}
+
+.assignment {
+  margin-bottom: 20px;
+}
+
+.assignment h2 {
+  margin-bottom: 10px;
+}
+
+.flex {
+  display: flex;
+}
+
+.min-h-screen {
+  min-height: 100vh;
+}
+
+.bg-gray-100 {
+  background-color: #f7fafc;
+}
+
+.p-5 {
+  padding: 1.25rem;
+}
+
+.shadow-md {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.border-2 {
+  border-width: 2px;
+}
+
+.border-blue-900 {
+  border-color: #06094D;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-blue-900 {
+  color: #06094D;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+}
+
+.text-red-600 {
+  color: #a30052;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.mt-5 {
+  margin-top: 1.25rem;
+}
+
+.grid {
+  display: grid;
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-cols-2 {
+  /* grid-template-columns: repeat(2, 1fr); */
+  grid-template-columns: 37.5% 62.5%; 
+}
+
+.gap-5 {
+  gap: 1.25rem;
+}
+
+.relative {
+  position: relative;
+}
+
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.py-2 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.w-80 {
+  width: 20rem;
+}
+
+.border {
+  border-width: 1px;
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+.focus\:outline-none:focus {
+  outline: 0;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.top-2 {
+  top: 0.5rem;
+}
+
+.left-2 {
+  left: 0.5rem;
+}
+
+.text-gray-500 {
+  color: #a0aec0;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.bg-white {
+  background-color: #fff;
+}
+
+.transition-all {
+  transition: all 0.3s;
+}
+
+.border-red-500 {
+  border-color: #f56565;
+}
+
+.hover\:bg-red-500:hover {
+  background-color: #f56565;
+}
+
+.hover\:text-white:hover {
+  color: #fff;
+}
+
+.bg-red-500 {
+  background-color: #f56565;
+}
+
+.text-white {
+  color: #fff;
+}
+
+.col-span-2 {
+  grid-column: span 2 / span 2;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-green-500 {
+  color: #48bb78;
+}
+
+.text-gray-500 {
+  color: #a0aec0;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
