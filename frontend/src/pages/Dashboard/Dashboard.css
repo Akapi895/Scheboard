@@ -84,8 +84,8 @@
 }
 
 .px-4 {
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .py-2 {
@@ -94,7 +94,7 @@
 }
 
 .w-80 {
-  width: 20rem;
+  width: 700px;
 }
 
 .border {
@@ -103,6 +103,7 @@
 
 .rounded-full {
   border-radius: 9999px;
+  margin-left: 30px;
 }
 
 .focus\:outline-none:focus {
@@ -324,7 +325,7 @@
 }
 
 .dashboard-container {
-  margin-left: 200px;
+  margin-left: 180px;
 }
 
 .upcoming-tasks {

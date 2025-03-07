@@ -7,6 +7,7 @@
 
 .content-authenticated {
   margin-left: 30px !important; 
+  margin-top: 0px;
 }
 
 .calendar-container {
@@ -96,8 +97,6 @@
   font-weight: bold;
 }
 
-
-
 .time-slot {
   padding: 5px;
   text-align: center;
@@ -120,8 +119,6 @@
   white-space: normal;    
   text-overflow: ellipsis;
 }
-
-
 
 .cell:hover {
   background-color: rgba(0, 0, 0, 0.03);
@@ -245,23 +242,26 @@
   display: flex;
   background: none;
   border: none;
-  font-size: 30px !important;
+  font-size: 50px !important;
   cursor: pointer;
-  color: #666;
-  width: 20px !important;
+  color: #c40000;
+  border-color: transparent !important;
   justify-content: center;
   align-items: center;
-  /* border: 1px !important; */
-  margin-right: 30px;
-  margin-bottom: 15px;
+  margin-right: 0px;
+  margin-top: 0px;
+  padding:0;
+  width: 50px;
+
 }
 
 .close-btn:hover {
-  color: #333;
+  color: #c40000;
+  background-color: #c400003b;
 }
 
 .task-popup-content {
-  padding: 20px;
+  padding: 10px;
 }
 
 .task-info {
@@ -295,16 +295,22 @@
   display: flex;
   align-items: center;   
   justify-content: center;
+  font-size: 16px !important;
+  font-family: Arial;
 }
 
 .edit-btn {
   background-color: #2196f3;
   color: white;
+  font-size: 16px !important;
+  font-family: Arial;
 }
 
 .delete-btn {
   background-color: #f44336;
   color: white;
+  font-size: 16px !important;
+  font-family: Arial;
 }
 
 .btn-cancel {
@@ -423,9 +429,9 @@
 }
 
 .calendar-question-section {
-  margin: 5px 0;
+  margin-top: 0px;
   padding: 10px;
-  background-color: #f5f5f5;
+  background-color: transparent
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
@@ -441,8 +447,8 @@
 .question-input {
   flex: 1;
   padding: 10px 15px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid #b0b0b0;
+  border-radius: 20px;
   font-size: 14px;
   transition: border-color 0.3s;
 }
@@ -454,18 +460,20 @@
 
 .ask-btn {
   padding: 10px 20px;
-  background-color: #1976d2;
-  color: white;
+  background-color: #d4e8f583;
+  color: #06094d;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
   transition: background-color 0.3s;
   margin-top: 0px;
+  width: 100px;
+  height: 40px;
 }
 
 .ask-btn:hover {
-  background-color: #1565c0;
+  background-color: #06094d;
 }
 
 .ask-btn:disabled {

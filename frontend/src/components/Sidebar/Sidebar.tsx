@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
+import { LogOut } from 'lucide-react';
+import logo from '../../assets/logo.jpg';
 
 // Định nghĩa interface cho main task
 interface MainTask {
@@ -117,6 +119,11 @@ const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
   };
 
   return (
+    <div className="sidebar-wrapper">
+    <div className="app-title">
+      <img src={logo} alt="Logo" className="logo" />
+      <h1>Scheboard</h1>
+    </div>
     <div className="sidebar-container">
       <div className="sidebar">
         <ul>
@@ -186,7 +193,6 @@ const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
             </div>
           )}
         </li>
-
           <li>
           <Link to="/profile">
               <span className="icon">
@@ -219,6 +225,7 @@ const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
             </li>
         </ul>
       </div>
+    </div>
     </div>
   );
 };

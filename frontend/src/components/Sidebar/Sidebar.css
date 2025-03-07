@@ -6,6 +6,34 @@
       margin: 0; /* Reset default margin */
       padding: 0; /* Reset default padding */
     }
+
+    .app-title {
+      display: flex;
+      margin-left: 30px;
+      padding: 20px 0;
+      color: white;
+      border-radius: 10px 10px 0 0;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
+    .app-title img {
+      width: 30px;
+      height: 30px;
+      margin-left: -5px;
+      margin-right: 7px;
+      margin-top: -3px;
+      padding: 0;
+    }
+    
+    .app-title h1 {
+      color: #06094D;
+      margin: 0;
+      font-size: 24px;
+      font-weight: bold;
+    }
     
   .sidebar-container {
     position: fixed;
