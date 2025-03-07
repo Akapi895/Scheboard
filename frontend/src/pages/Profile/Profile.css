@@ -219,7 +219,3 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
-
-.content-authenticated {
-    margin-left: 220px !important; /* Width of sidebar + 10px gap */
-}
