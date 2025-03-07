@@ -10,22 +10,31 @@ interface Task {
 }
 
 interface TaskTableProps {
-  tasks: Task[];
+  tasks: Task[];         // Dữ liệu bảng (phải là mảng)
+  title?: string;        // Tiêu đề bảng (tuỳ chọn)
+  showCheckbox?: boolean; // Hiển thị cột checkbox (tuỳ chọn)
 }
 
-const TaskTable: React.FC<TaskTableProps> = ({ tasks }) => {
+const TaskTable: React.FC<TaskTableProps> = ({
+  tasks,
+  title,
+  showCheckbox = true
+}) => {
+  // Nếu muốn chắc chắn tasks luôn là mảng, có thể:
+  const safeTasks = Array.isArray(tasks) ? tasks : [];
+
   return (
     <div className="task-table-container">
-      {/* <h2>Upcoming Tasks</h2> */}
-      {tasks.length === 0 ? (
-        <div className="no-tasks-message">
-          No tasks scheduled for today!
-        </div>
+      {title && <h2>{title}</h2>}
+
+      {safeTasks.length === 0 ? (
+        <div className="no-tasks-message">No tasks available</div>
+
       ) : (
         <table className="task-table">
           <thead>
             <tr>
-              <th>Check</th>
+              {showCheckbox && <th>Check</th>}
               <th>Task</th>
               <th>Description</th>
               <th>Priority</th>
@@ -33,12 +42,18 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks }) => {
             </tr>
           </thead>
           <tbody>
-            {tasks.map(task => (
+            {safeTasks.map(task => (
               <tr key={task.id}>
-                <td><input type="checkbox" /></td>
+                {showCheckbox && (
+                  <td>
+                    <input type="checkbox" />
+                  </td>
+                )}
                 <td>{task.name}</td>
                 <td>{task.description}</td>
-                <td>{task.priority}</td>
+                <td className={`priority-${task.priority?.toLowerCase()}`}>
+                  {task.priority}
+                </td>
                 <td>{task.deadline}</td>
               </tr>
             ))}

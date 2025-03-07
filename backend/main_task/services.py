@@ -4,7 +4,21 @@ from database import DATABASE
 from .schemas import SubTaskCreateRequest, TaskUpdateRequest, StatusUpdateRequest, UploadResourceRequest
 
 # Task
+async def get_one_task_name(task_id: int) -> str:
+    async with aiosqlite.connect(DATABASE) as db:
+        cursor = await db.execute('''
+            SELECT task_name
+            FROM tasks
+            WHERE task_id = ?
+        ''', (task_id,))
+        task = await cursor.fetchone()
+        await cursor.close()
 
+        if not task:
+            raise HTTPException(status_code=404, detail="Task not found")
+
+        return task[0]
+        
 
 async def get_main_tasks_name(user_id: int) -> list[dict]:
     async with aiosqlite.connect(DATABASE) as db:
@@ -27,10 +41,47 @@ async def get_main_tasks_name(user_id: int) -> list[dict]:
 
         return main_task_list
 
+# async def get_main_task_list(user_id: int, main_task_id: int) -> dict:
+#     async with aiosqlite.connect(DATABASE) as db:
+#         cursor = await db.execute('''
+#             SELECT task_id, task_name
+#             FROM tasks
+#             WHERE user_id = ? AND task_id = ?
+#         ''', (user_id, main_task_id))
+#         main_task = await cursor.fetchone()
+
+#         if not main_task:
+#             raise HTTPException(status_code=404, detail="Main task not found")
+
+#         cursor = await db.execute('''
+#             SELECT task_id, task_name
+#             FROM tasks
+#             WHERE user_id = ? AND parent_task_id = ?
+#         ''', (user_id, main_task_id))
+#         tasks = await cursor.fetchall()
+#         await cursor.close()
+
+#         task_list = []
+#         for task in tasks:
+#             task_list.append({
+#                 "task_id": task[0],
+#                 "task_name": task[1]
+#             })
+
+#         return {
+#             "main_task": {
+#                 "task_id": main_task[0],
+#                 "task_name": main_task[1]
+#             },
+#             "task": task_list
+#         }
+
 async def get_main_task_list(user_id: int, main_task_id: int) -> dict:
     async with aiosqlite.connect(DATABASE) as db:
+        # Get main task with all required fields
         cursor = await db.execute('''
-            SELECT task_id, task_name
+            SELECT task_id, task_name, description, category, priority, 
+                   status, estimated_time, due_date
             FROM tasks
             WHERE user_id = ? AND task_id = ?
         ''', (user_id, main_task_id))
@@ -39,8 +90,10 @@ async def get_main_task_list(user_id: int, main_task_id: int) -> dict:
         if not main_task:
             raise HTTPException(status_code=404, detail="Main task not found")
 
+        # Get subtasks with all required fields
         cursor = await db.execute('''
-            SELECT task_id, task_name
+            SELECT task_id, task_name, description, category, priority, 
+                   status, estimated_time, due_date
             FROM tasks
             WHERE user_id = ? AND parent_task_id = ?
         ''', (user_id, main_task_id))
@@ -51,13 +104,25 @@ async def get_main_task_list(user_id: int, main_task_id: int) -> dict:
         for task in tasks:
             task_list.append({
                 "task_id": task[0],
-                "task_name": task[1]
+                "task_name": task[1],
+                "description": task[2] if task[2] else "",
+                "category": task[3] if task[3] else "study",
+                "priority": task[4] if task[4] else "medium",
+                "status": task[5] if task[5] else "todo",
+                "estimated_time": task[6] if task[6] is not None else 0,
+                "due_date": task[7] if task[7] else ""
             })
 
         return {
             "main_task": {
                 "task_id": main_task[0],
-                "task_name": main_task[1]
+                "task_name": main_task[1],
+                "description": main_task[2] if main_task[2] else "",
+                "category": main_task[3] if main_task[3] else "study",
+                "priority": main_task[4] if main_task[4] else "medium",
+                "status": main_task[5] if main_task[5] else "todo",
+                "estimated_time": main_task[6] if main_task[6] is not None else 0,
+                "due_date": main_task[7] if main_task[7] else ""
             },
             "task": task_list
         }

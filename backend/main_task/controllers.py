@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import List, Dict, Optional
 from .services import get_main_task_list, get_sub_task_list, get_subtask_details
 from .services import create_sub_task, user_update_task, user_delete_subtask
-from .services import update_subtask_status, delete_task_resource
+from .services import update_subtask_status, delete_task_resource, get_one_task_name
 from .services import get_task_resources, upload_task_resources, get_main_tasks_name
 from .schemas import MainTaskRequest, MainTaskResponse
 from .schemas import SubTaskRequest, SubTaskResponse
@@ -28,7 +28,7 @@ async def get_user_main_tasks(main_task_request: MainTasks):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/api/main-tasks/tasks", response_model=MainTaskResponse)
+@router.post("/api/main-tasks/tasks", response_model=MainTaskResponse)
 async def get_main_tasks(main_task_request: MainTaskRequest):
     try:
         main_task_list = await get_main_task_list(main_task_request.user_id, main_task_request.main_task_id)
@@ -106,5 +106,19 @@ async def upload_resources(upload_request: List[UploadResourceRequest]):
     try:
         await upload_task_resources(upload_request)
         return {"status": "success"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+class TaskRequest(BaseModel):
+    task_id: int
+
+class TaskResponse(BaseModel):
+    task_name: str
+    
+@router.post("/api/main-tasks/get-task-name", response_model=TaskResponse)
+async def get_task_name(main_task_request: TaskRequest):
+    try:
+        task_name = await get_one_task_name(main_task_request.task_id)
+        return TaskResponse(task_name=task_name)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
