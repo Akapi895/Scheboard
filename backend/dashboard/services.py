@@ -166,7 +166,12 @@ async def get_donutchart_data(user_id: int) -> dict:
                 donutchart_data["todo"] += 1  # Chưa đến hạn
 
         for key in donutchart_data:
-            donutchart_data[key] = (donutchart_data[key] / total_tasks) * 100
+            donutchart_data[key] = round((donutchart_data[key] / total_tasks) * 100, 1)
+            
+        total_percentage = sum(donutchart_data.values())
+        if total_percentage != 100:
+            difference = 100 - total_percentage
+            donutchart_data["completed"] += difference
 
         return donutchart_data
 
