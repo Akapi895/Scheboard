@@ -58,7 +58,7 @@ async def get_calendar_plan_suggestions(prompt: str, tasks: List[dict], user_id:
     if user_id is not None:
         print(user_id)
         await save_session_tasks(user_id, extracted_tasks)
-    await save_all_session_tasks(user_id) #mtran hiện hồn đi 
+        await save_all_session_tasks(user_id)
     
     # Remove JSON blocks from response
     cleaned_response = re.sub(r"```json\s*\{.*?\}\s*```", "", response, flags=re.DOTALL)
