@@ -154,7 +154,7 @@ const Sidebar = ({ onLogout }: { onLogout?: () => void }) => {
               </span>
               <span className="title">Chatbot</span>
             </Link>
-          </li>
+          </li> 
 
           <li className="main-task">
           <div className="main-task-header" onClick={toggleMainTasks}>

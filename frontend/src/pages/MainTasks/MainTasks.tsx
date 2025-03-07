@@ -3,23 +3,39 @@ import { useNavigate, useParams } from 'react-router-dom';
 import TaskTable from "../../components/task_table/task_table";
 import './MainTasks.css';
 
-interface Task {
+// Define interfaces for backend data structure
+interface BackendTask {
   task_id: number;
   task_name: string;
+  description?: string;
+  priority?: string;
+  due_date?: string;
+  status?: string;
+  estimated_time?: number;
 }
 
 interface MainTaskData {
-  main_task: Task;  // Thông tin main task
-  task: Task[];     // Mảng subtasks
+  main_task: BackendTask; 
+  task: BackendTask[];   
+}
+
+// This matches the TaskTable's expected interface
+interface FormattedTask {
+  id: number;
+  name: string;
+  description: string;
+  priority: string;
+  deadline: string;
 }
 
 const MainTasks: React.FC = () => {
   const navigate = useNavigate();
-  const { maintaskId } = useParams<{ maintaskId: string }>();
+  const { taskId } = useParams<{ taskId: string }>();
 
   const [mainTaskData, setMainTaskData] = useState<MainTaskData | null>(null);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [formattedTasks, setFormattedTasks] = useState<FormattedTask[]>([]);
   const [loading, setLoading] = useState(true);
+  const [taskName, setTaskName] = useState<string>("Main Task");
 
   // Lấy userId từ localStorage
   const [userId, setUserId] = useState<number | null>(() => {
@@ -33,22 +49,66 @@ const MainTasks: React.FC = () => {
       navigate('/login');
       return;
     }
-    // Gọi API lấy main_task và subtasks
-    fetchMainTaskData();
-  }, [userId, navigate, maintaskId]);
+    
+    // Fetch task name and main task data
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // Fetch task name first
+        await fetchTaskName();
+        // Then fetch main task data
+        await fetchMainTaskData();
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [userId, navigate, taskId]);
+
+  // New function to fetch task name
+  const fetchTaskName = async () => {
+    if (!taskId) return;
+    
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/main-tasks/get-task-name', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          task_id: parseInt(taskId, 10)
+        }),
+      });
+
+      if (!response.ok) {
+        console.error(`Error fetching task name: ${response.status}`);
+        return;
+      }
+
+      const result = await response.json();
+      console.log("Task name API result:", result);
+      
+      if (result && result.task_name) {
+        setTaskName(result.task_name);
+      }
+    } catch (error) {
+      console.error("Error fetching task name:", error);
+    }
+  };
 
   const fetchMainTaskData = async () => {
     try {
-      console.log("Fetching main tasks for user:", userId, "with main_task_id:", maintaskId);
+      console.log("Fetching main tasks for user:", userId, "with main_task_id:", taskId);
 
-      const response = await fetch('http://127.0.0.1:8000/api/main-tasks', {
+      const response = await fetch('http://127.0.0.1:8000/api/main-tasks/tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           user_id: userId,
-          main_task_id: maintaskId
+          main_task_id: parseInt(taskId || '0', 10)
         }),
       });
 
@@ -63,18 +123,33 @@ const MainTasks: React.FC = () => {
       const result = await response.json();
       console.log("main tasks API result:", result);
 
-      // Kiểm tra format JSON trả về
+      // Process data if successful
       if (
         result.status === 'success' &&
         result.data &&
-        result.data.task && // mảng subtasks
-        result.data.main_task // object main_task
+        result.data.task && 
+        result.data.main_task 
       ) {
         setMainTaskData(result.data);
-        setTasks(result.data.task); // Gán mảng subtasks vào state
+        
+        // Format the tasks to match the TaskTable interface
+        const formatted = result.data.task.map((task: BackendTask) => ({
+          id: task.task_id,
+          name: task.task_name,
+          description: task.description || "No description",
+          priority: task.priority || "medium",
+          deadline: task.due_date || "No deadline"
+        }));
+        
+        setFormattedTasks(formatted);
+        
+        // Also update the task name if available
+        if (result.data.main_task.task_name) {
+          setTaskName(result.data.main_task.task_name);
+        }
         console.log("main tasks loaded:", result.data);
       } else {
-        // Nếu dữ liệu không đúng format mong đợi
+        // Fallback for invalid data format
         console.error("Failed to fetch main tasks:", result.message || "Invalid data format");
 
         const fallbackData: MainTaskData = {
@@ -82,20 +157,18 @@ const MainTasks: React.FC = () => {
           task: []
         };
         setMainTaskData(fallbackData);
-        setTasks([]);
+        setFormattedTasks([]);
       }
     } catch (error) {
       console.error("Error fetching main tasks:", error);
 
-      // Nếu request hoặc parse bị lỗi
+      // Fallback for errors
       const fallbackData: MainTaskData = {
         main_task: { task_id: 0, task_name: "No tasks" },
         task: []
       };
       setMainTaskData(fallbackData);
-      setTasks([]);
-    } finally {
-      setLoading(false);
+      setFormattedTasks([]);
     }
   };
 
@@ -105,23 +178,17 @@ const MainTasks: React.FC = () => {
         <div className="loading">Loading...</div>
       ) : (
         <>
-          {/* Hiển thị tên Main Task */}
+          {/* Hiển thị tên Main Task sử dụng taskName state */}
           <h1 className="main-task-title">
-            {mainTaskData?.main_task?.task_name || "Main Task"}
+            {taskName}
           </h1>
 
-          {/* Nếu tasks.length > 0 thì hiển thị bảng, ngược lại hiển thị message */}
-          {tasks.length > 0 ? (
+          {/* Subtasks table */}
+          {formattedTasks.length > 0 ? (
             <TaskTable
-              tasks={tasks.map(task => ({
-                id: task.task_id,
-                name: task.task_name,
-                description: "",
-                priority: "medium",
-                deadline: ""
-              }))}
+              tasks={formattedTasks}
               title="Subtasks"
-              showCheckbox={false}
+              showCheckbox={true}
             />
           ) : (
             <p>No subtasks available for this task</p>
