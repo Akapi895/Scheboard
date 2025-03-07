@@ -11,21 +11,27 @@ interface Task {
 
 interface TaskTableProps {
   tasks: Task[];
+  title?: string;  // Optional title
+  showCheckbox?: boolean; // Optional checkbox column
 }
 
-const TaskTable: React.FC<TaskTableProps> = ({ tasks }) => {
+const TaskTable: React.FC<TaskTableProps> = ({ 
+  tasks, 
+  title, 
+  showCheckbox = true 
+}) => {
   return (
     <div className="task-table-container">
-      <h2>Upcoming Tasks</h2>
+      {title && <h2>{title}</h2>}
       {tasks.length === 0 ? (
         <div className="no-tasks-message">
-          No tasks scheduled for today!
+          No tasks available
         </div>
       ) : (
         <table className="task-table">
           <thead>
             <tr>
-              <th>Check</th>
+              {showCheckbox && <th>Check</th>}
               <th>Task</th>
               <th>Description</th>
               <th>Priority</th>
@@ -35,10 +41,10 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks }) => {
           <tbody>
             {tasks.map(task => (
               <tr key={task.id}>
-                <td><input type="checkbox" /></td>
+                {showCheckbox && <td><input type="checkbox" /></td>}
                 <td>{task.name}</td>
                 <td>{task.description}</td>
-                <td>{task.priority}</td>
+                <td className={`priority-${task.priority.toLowerCase()}`}>{task.priority}</td>
                 <td>{task.deadline}</td>
               </tr>
             ))}

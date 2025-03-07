@@ -85,12 +85,17 @@ const MainTasks: React.FC = () => {
               {selectedTask === task.id && (
                 <div className="subtasks-container">
                   {loading ? (
-                    <p>Loading subtasks...</p>
+                    <div className="loading-container">
+                      <p>Loading subtasks...</p>
+                    </div>
                   ) : (
                     <>
-                      <h4>Subtasks</h4>
                       {subTasks.length > 0 ? (
-                        <TaskTable tasks={subTasks} />
+                        <TaskTable 
+                          tasks={subTasks} 
+                          title="Subtasks"
+                          showCheckbox={false} 
+                        />
                       ) : (
                         <p>No subtasks available for this task</p>
                       )}

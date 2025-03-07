@@ -52,13 +52,13 @@ async def get_calendar_plan_suggestions(prompt: str, tasks: List[dict], user_id:
     
     # Extract tasks from response and save to session
     extracted_tasks = await extract_tasks_from_response(response, user_id)
-    print(extracted_tasks)
+    print("extracted_tasks: ", extracted_tasks)
     
     # Save extracted tasks to session
     if user_id is not None:
         print(user_id)
         await save_session_tasks(user_id, extracted_tasks)
-    # await save_all_session_tasks(user_id) #mtran hiện hồn đi 
+        await save_all_session_tasks(user_id)
     
     # Remove JSON blocks from response
     cleaned_response = re.sub(r"```json\s*\{.*?\}\s*```", "", response, flags=re.DOTALL)
@@ -200,6 +200,7 @@ async def save_one_session_task(user_id: int, task_name: str):
 async def extract_tasks_from_response(response: str, user_id: int = None) -> List[dict]:
     """
     Extracts JSON task objects from an AI response that contains formatted code blocks.
+    More robust parsing to handle common formatting issues.
     
     Args:
         response: The AI response string containing JSON task blocks
@@ -216,23 +217,60 @@ async def extract_tasks_from_response(response: str, user_id: int = None) -> Lis
     
     for json_str in matches:
         try:
-            task = json.loads(json_str)
+            # Clean up common JSON formatting issues
+            cleaned_json = json_str.strip()
+            # Fix potential trailing commas before closing brackets
+            cleaned_json = re.sub(r',\s*}', '}', cleaned_json)
+            cleaned_json = re.sub(r',\s*]', ']', cleaned_json)
             
-            # Add default values for category and status if they don't exist
+            # Replace single quotes with double quotes if needed
+            if "'" in cleaned_json and '"' not in cleaned_json:
+                cleaned_json = cleaned_json.replace("'", '"')
+                
+            # Handle potential control characters
+            cleaned_json = re.sub(r'[\x00-\x1F\x7F]', '', cleaned_json)
+            
+            # Log the cleaned JSON for debugging
+            logging.debug(f"Attempting to parse cleaned JSON: {cleaned_json[:50]}...")
+            
+            task = json.loads(cleaned_json)
+            
+            # Add default values for required fields
             if "category" not in task:
-                task["category"] = "study"  # Default category
-            if "status" not in task:
-                task["status"] = "todo"  # Default status
+                task["category"] = task.get("category", "study")
+            task["status"] = task.get("status", "todo")
+            if "priority" not in task:
+                task["priority"] = task.get("priority", "medium")
+            if "estimated_time" not in task:
+                task["estimated_time"] = task.get("estimated_time", 30)
+            
+            # task["category"] = task.get("category", "study")
+            # task["estimated_time"] = task.get("estimated_time", 30)
+            # task["priority"] = task.get("priority", "medium")
+            task["description"] = task.get("description", "")
+            task["task_type"] = task.get("task_type", "task")
+            
+            # Ensure task_name exists
+            if not task.get("task_name"):
+                continue
                 
             # Add user_id if provided
             if user_id is not None:
                 task["user_id"] = user_id
                 
             tasks.append(task)
+            logging.info(f"Successfully parsed task: {task['task_name']}")
+            
         except json.JSONDecodeError as e:
-            logging.error(f"Failed to parse task JSON: {e}")
+            logging.error(f"Failed to parse task JSON: {e}\nJSON string: {json_str[:100]}...")
+            continue
+        except Exception as e:
+            logging.error(f"Unexpected error parsing task: {str(e)}")
             continue
     
+    if not tasks:
+        logging.warning("No valid tasks were extracted from AI response")
+        
     return tasks
 
 # Lay mood va learning style o day
