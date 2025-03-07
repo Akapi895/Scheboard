@@ -213,10 +213,10 @@ const Dashboard: React.FC = () => {
         // API trả về { completed: 30, inprogress: 45, todo: 25 }
         // Chuyển đổi thành định dạng mà recharts có thể sử dụng
         const formattedData = [
-          { name: "Completed", value: result.data.completed || 0, color: "#4CAF50" },
-          { name: "In Progress", value: result.data.inprogress || 0, color: "#FFC107" },
-          { name: "Todo", value: result.data.todo || 0, color: "#2196F3" },
-        ];
+          { name: "Completed", value: Number((result.data.completed || 0).toFixed(1)), color: "#4CAF50" },
+          { name: "In Progress", value: Number((result.data.inprogress || 0).toFixed(1)), color: "#FFC107" },
+          { name: "Todo", value: Number((result.data.todo || 0).toFixed(1)), color: "#2196F3" },
+        ];        
         
         setDonutData(formattedData);
         console.log("Donut chart data loaded:", formattedData);
@@ -363,7 +363,7 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="dashboard-container flex min-h-screen bg-gray-100">
       <div className="flex-1 p-5">
         <div className="flex justify-between items-center">
           <div className="relative">
@@ -472,7 +472,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Task Table - Giữ nguyên dữ liệu hardcoded */}
-        <h3 id="todays-tasks-section" className="text-lg font-semibold mt-5 mb-2">Today's Tasks</h3>
+        <h2 id="todays-tasks-section" className="text-lg font-semibold mt-5 mb-2 upcoming-tasks">Upcoming Tasks</h2>
         <TaskTable 
           tasks={tasks.map(task => ({
             id: task.task_id,

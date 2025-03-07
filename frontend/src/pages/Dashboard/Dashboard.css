@@ -222,6 +222,10 @@
   padding: 1.25rem;
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 97.5%;
 }
 
 /* Custom classes for mood buttons */
@@ -316,4 +320,16 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  margin-right: 20px;
+}
+
+.dashboard-container {
+  margin-left: 200px;
+}
+
+.upcoming-tasks {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  font-size: 35px;
 }

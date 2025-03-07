@@ -208,6 +208,7 @@
   width: 90%;
   max-width: 1400px;
   margin: 0 auto;
+  margin-left: 100px;
   padding: 2rem;
   background-color: #fff;
   border-radius: 10px;
@@ -217,4 +218,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.content-authenticated {
+    margin-left: 220px !important; /* Width of sidebar + 10px gap */
 }

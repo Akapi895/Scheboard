@@ -137,6 +137,9 @@ const Chatbot = () => {
 
   return (
     <div className="chatbot-container">
+           <div className="chat-header">
+          <h1 className="chat-title">CHATBOT</h1>
+      </div>
       <div className="chat-window">
         <div className="messages">
           {messages.length === 0 && (

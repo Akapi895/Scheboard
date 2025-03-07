@@ -29,6 +29,7 @@ const TaskTable: React.FC<TaskTableProps> = ({
 
       {safeTasks.length === 0 ? (
         <div className="no-tasks-message">No tasks available</div>
+
       ) : (
         <table className="task-table">
           <thead>

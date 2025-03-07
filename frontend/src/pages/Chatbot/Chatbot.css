@@ -1,18 +1,37 @@
 .chatbot-container {
   position: fixed;
-  top: 0;
-  left: 200px; /* Adjust for sidebar width */
-  width: calc(100% - 200px);
-  height: 100vh;
+  top: 40px;
+  left: 240px; /* Adjust for sidebar width */
+  width: 82%;
+  height: 90vh;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: #f4f4f4;
+  flex-direction: column;
+  font-size: 16px;
+}
+
+.chat-header {
+  margin-top: -10px !important;
+  padding: 5px 10px;
+  background-color: #06094d;
+  color: white;
+  border-radius: 10px 10px 0 0;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 15px;
+  margin-top: 0px;
+}
+
+.chat-title {
+  margin: 0;
+  font-size: 24px;
 }
 
 .chat-window {
   width: 80%;
-  height: 80%;
+  height: 90%;
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -29,18 +48,18 @@
 .message {
   margin-bottom: 10px;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: 20px;
   max-width: 100%;
 }
 
 .message.user {
-  background-color: #d1e7dd;
+  background-color: #498fff57;
   align-self: flex-end;
   text-align: right;
 }
 
 .message.ai {
-  background-color: #d4daff;
+  background-color: #83838328;
   align-self: flex-start;
   text-align: left;
 }
@@ -48,30 +67,35 @@
 .input-area {
   display: flex;
   padding: 10px;
+  border-radius: 20px;
   border-top: 1px solid #ddd;
 }
 
 .input-area input {
   flex: 1;
   padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  border: 2px solid #ddd;
+  border-radius: 100px;
   margin-right: 10px;
+  margin-top: 10px;
+  height: 50px;
 }
 
 .input-area button {
   padding: 10px 20px;
   border: none;
-  background-color: #06094d;
-  color: white;
-  border-radius: 5px;
+  background-color: #ffffff;
+  color: #06094d;
+  border-radius: 10px;
+  border-color: #06094d;
   cursor: pointer;
   position: relative;
   top: -10px;
+  width: 100px;
 }
 
 .input-area button:hover {
-  background-color: #04072e;
+  background-color: #06094d;
 }
 
 /* Thêm vào file Chatbot.css */
