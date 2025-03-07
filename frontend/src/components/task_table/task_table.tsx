@@ -17,8 +17,6 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks }) => {
   return (
     <div className="task-table-container">
       <h2>Upcoming Tasks</h2>
-      {tasks.map((task, index) => (
-        <table className="task-table" key={index}>
       {tasks.length === 0 ? (
         <div className="no-tasks-message">
           No tasks scheduled for today!
