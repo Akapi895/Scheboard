@@ -42,25 +42,31 @@ git clone https://github.com/Akapi895/Scheboard.git
 cd Scheboard
 ```
 
-2. Install backend dependencies:
+2. Create a `.env` file in the `Scheboard` directory to save your AI API key. Then save the file with:
+
+```
+GEMINI_API_KEY=AIzaSyB9CbVuECbMVuPburT1r5vsLYW9l6RkM_A
+ENDPOINT_URL=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=
+```
+
+3. Install backend dependencies:
 ```
 cd backend
 pip install -r requirements.txt
 ```
 
-3. Install frontend dependencies:
+4. Install frontend dependencies:
 ```
 cd frontend
 npm install
 ```
 
-4.  Run the backend:
+5.  Run the backend:
 ```
 # From path/Scheboard
 uvicorn backend.main:app 
 ```
 
- 5. Run the frontend:
 ```
 cd frontend
 npm run dev
