@@ -314,7 +314,7 @@ const Dashboard: React.FC = () => {
   }, [userId]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    // return <div>Loading...</div>;
   }
 
   // Thêm hàm xử lý cập nhật mood
