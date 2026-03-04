@@ -1,37 +1,37 @@
 # ⌛ Scheboard: AI System for Scheduling
 
+## 📖 **Table of Contents**
 
-## 📖 **Table of Contents**  
-1. [Introduction](#gioi-thieu)  
-2. [Installation and Usage](#cai-dat-va-cach-su-dung)  
-3. [Features](#tinh-nang)  
-4. [Future Development](#huong-phat-trien)  
-
+1. [Introduction](#gioi-thieu)
+2. [Installation and Usage](#cai-dat-va-cach-su-dung)
+3. [Features](#tinh-nang)
+4. [Future Development](#huong-phat-trien)
 
 <a id="gioi-thieu"></a>
+
 ## 🌟 **Introduction**
+
 **Scheboard** is a web application designed to automatically schedule tasks and suggest study plans. It includes three main components:
 
 ✅ **Frontend:** Built with React.
 
 ✅ **Backend:** Developed using FastAPI.
 
-✅ **AI Service:** Integrated AI for intelligent scheduling. 
-
+✅ **AI Service:** Integrated AI for intelligent scheduling.
 
 <a id="cai-dat-va-cach-su-dung"></a>
-## 🚀 **Installation and Usage**  
+
+## 🚀 **Installation and Usage**
 
 **Prerequisites**
 
 - Python 3.8+
 
-- Node.js 
+- Node.js
 
 - FastAPI
 
-- Reactjs 
-
+- Reactjs
 
 **Installation**
 
@@ -45,26 +45,31 @@ cd Scheboard
 2. Create a `.env` file in the `Scheboard` directory to save your AI API key. Then save the file with:
 
 ```
-GEMINI_API_KEY=AIzaSyB9CbVuECbMVuPburT1r5vsLYW9l6RkM_A
+GEMINI_API_KEY=your_gemini_api_key_here
 ENDPOINT_URL=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=
 ```
 
+> Get your Gemini API key at: https://aistudio.google.com/app/apikey
+
 3. Install backend dependencies:
+
 ```
 cd backend
 pip install -r requirements.txt
 ```
 
 4. Install frontend dependencies:
+
 ```
 cd frontend
 npm install
 ```
 
 5.  Run the backend:
+
 ```
 # From path/Scheboard
-uvicorn backend.main:app 
+uvicorn backend.main:app
 ```
 
 ```
@@ -72,9 +77,9 @@ cd frontend
 npm run dev
 ```
 
- 
 <a id="tinh-nang"></a>
-## ⚙️ **Features**  
+
+## ⚙️ **Features**
 
 - **Automated Scheduling:** Organizes tasks based on priority and study methods.
 
@@ -90,10 +95,9 @@ npm run dev
 
 - **Chatbot Integration:** Assists users in task management.
 
-
-
 <a id="huong-phat-trien"></a>
-## 🎯 **Future Development**  
+
+## 🎯 **Future Development**
 
 - **Mobile App Support:** Develop a mobile-friendly version.
 
@@ -107,6 +111,4 @@ npm run dev
 
 - **Voice Command Support:** Enable voice-based task input and management.
 
-
 For further details, please check the documentation or contribute to the project!
-

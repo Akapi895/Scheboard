@@ -1,5 +1,5 @@
 import aiosqlite
-from database import DATABASE
+from ..database import DATABASE
 
 async def authenticate_user(email: str, password: str) -> str:
     async with aiosqlite.connect(DATABASE) as db:

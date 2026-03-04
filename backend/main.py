@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from credentials.controllers import router as credentials_router
+from backend.credentials.controllers import router as credentials_router
 from backend.profile.controllers import router as profile_router
 from backend.chatbot.controllers import router as chatbot_router
 from backend.calendar.controllers import router as calendar_router
